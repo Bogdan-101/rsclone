@@ -5,9 +5,6 @@ export class LoadScene extends Phaser.Scene{
             key: CST.SCENES.LOAD
         })
     }
-    init(){
-
-    }
     loadImages(){
         this.load.setPath('./assets/images/');
 
@@ -36,8 +33,8 @@ export class LoadScene extends Phaser.Scene{
         this.loadImages();
         this.loadSounds();
         this.loadSprites({
-            frameHeight: 32,
-            frameWidth: 32
+            frameHeight: 40,
+            frameWidth: 28
         })
 
         const loadingBar = this.add.graphics({

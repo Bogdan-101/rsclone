@@ -26,7 +26,9 @@ exports.CST = {
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"
     },
-    SPRITE: {}
+    SPRITE: {
+        PLANE: "PlaneSprites.png"
+    }
 };
 
 
@@ -41,18 +43,123 @@ exports.CST = {
 
 /// <reference path='../typings/phaser.d.ts' />
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var GameScene_1 = __webpack_require__(/*! ./scenes/GameScene */ "./src/scenes/GameScene.ts");
 var LoadScene_1 = __webpack_require__(/*! ./scenes/LoadScene */ "./src/scenes/LoadScene.ts");
 var MenuScene_1 = __webpack_require__(/*! ./scenes/MenuScene */ "./src/scenes/MenuScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene
     ],
     render: {
         pixelArt: true
-    }
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false
+        }
+    },
 });
+
+
+/***/ }),
+
+/***/ "./src/scenes/GameScene.ts":
+/*!*********************************!*\
+  !*** ./src/scenes/GameScene.ts ***!
+  \*********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GameScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var GameScene = /** @class */ (function (_super) {
+    __extends(GameScene, _super);
+    function GameScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.GAME
+        }) || this;
+    }
+    GameScene.prototype.init = function () {
+        console.log('game');
+    };
+    GameScene.prototype.preload = function () {
+        this.anims.create({
+            key: 'left',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 0 }],
+            frameRate: 24,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 1 }],
+            frameRate: 24
+        });
+        this.anims.create({
+            key: 'right',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 2 }],
+            frameRate: 24,
+            repeat: -1
+        });
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.player = this.physics.add.sprite(100, 450, CST_1.CST.SPRITE.PLANE);
+    };
+    GameScene.prototype.update = function () {
+        if (this.cursors.left.isDown) {
+            console.log('left');
+            this.player.setVelocityX(-160);
+            this.player.anims.play('left');
+        }
+        else if (this.cursors.right.isDown) {
+            console.log('right');
+            this.player.setVelocityX(160);
+            this.player.anims.play('right', true);
+        }
+        else {
+            this.player.setVelocityX(0);
+            this.player.anims.play('turn');
+        }
+        if (this.cursors.up.isDown) {
+            console.log('up');
+            this.player.setVelocityY(-160);
+            this.player.anims.play('turn');
+        }
+        else if (this.cursors.down.isDown) {
+            console.log('down');
+            this.player.setVelocityY(+160);
+            this.player.anims.play('turn');
+        }
+        else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+            this.player.setVelocityY(0);
+            this.player.anims.play('turn');
+        }
+        if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
+            this.player.setVelocityX(0);
+            this.player.setVelocityY(0);
+            this.player.anims.play('turn');
+        }
+    };
+    GameScene.prototype.create = function () {
+    };
+    return GameScene;
+}(Phaser.Scene));
+exports.GameScene = GameScene;
 
 
 /***/ }),
@@ -87,8 +194,6 @@ var LoadScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.LOAD
         }) || this;
     }
-    LoadScene.prototype.init = function () {
-    };
     LoadScene.prototype.loadImages = function () {
         this.load.setPath('./assets/images/');
         for (var prop in CST_1.CST.IMAGES) {
@@ -115,8 +220,8 @@ var LoadScene = /** @class */ (function (_super) {
         this.loadImages();
         this.loadSounds();
         this.loadSprites({
-            frameHeight: 32,
-            frameWidth: 32
+            frameHeight: 40,
+            frameWidth: 28
         });
         var loadingBar = this.add.graphics({
             fillStyle: {
@@ -400,6 +505,7 @@ var MenuScene = /** @class */ (function (_super) {
             _this.time.addEvent({
                 delay: 200,
                 callback: function () {
+                    console.log('game start', CST_1.CST.SCENES.GAME);
                     _this.scene.start(CST_1.CST.SCENES.GAME);
                 },
                 loop: false

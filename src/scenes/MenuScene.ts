@@ -34,7 +34,7 @@ export class MenuScene extends Phaser.Scene{
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
         const background = this.add.image(-100, 0, CST.IMAGES.SKY1).setOrigin(0).setScale(0.5);
 
-        let playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const playText = this.make.text({
             x: this.game.renderer.width / 2 + 175,
             y: this.game.renderer.height / 2 + 42,
@@ -63,13 +63,14 @@ export class MenuScene extends Phaser.Scene{
             this.time.addEvent({
                 delay: 200,
                 callback: ()=>{
+                    console.log('game start', CST.SCENES.GAME)
                     this.scene.start(CST.SCENES.GAME);
                 },
                 loop: false
             });
         });
 
-        let optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const optionsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
             y: this.game.renderer.height / 2 + 142,
@@ -97,7 +98,7 @@ export class MenuScene extends Phaser.Scene{
             });
         });
 
-        let creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 200, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 200, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const creditsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
             y: this.game.renderer.height / 2 + 242,

@@ -14,6 +14,6 @@ export const CST = {
         MAINIMENU: "MainMenuMusic.mp3"
     },
     SPRITE: {
-
+        PLANE: "PlaneSprites.png"
     }
 }
