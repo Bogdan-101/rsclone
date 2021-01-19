@@ -11,7 +11,10 @@ export const CST = {
         BUTTON: "Button.png",
         STAGE: "stage.png",
         BULLET: "Bullet.png",
-        ENEMYBULLET: "EnemyBullet.png"
+        ENEMYBULLET: "EnemyBullet.png",
+        GAMEOVER: "game_over.png",
+        RESTART: "Restart.png",
+        HOME: "Home.png"
     },
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"

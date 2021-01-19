@@ -24,7 +24,10 @@ exports.CST = {
         BUTTON: "Button.png",
         STAGE: "stage.png",
         BULLET: "Bullet.png",
-        ENEMYBULLET: "EnemyBullet.png"
+        ENEMYBULLET: "EnemyBullet.png",
+        GAMEOVER: "game_over.png",
+        RESTART: "Restart.png",
+        HOME: "Home.png"
     },
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"
@@ -295,7 +298,51 @@ var GameScene = /** @class */ (function (_super) {
         this.isDead = true;
         this.physics.pause();
         this.player.setTint(0xff5555);
-        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1);
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1).setScale(2);
+        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER).setDepth(5);
+        var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART).setDepth(5).setScale(2.5);
+        restartButton.setInteractive();
+        restartButton.on('pointerup', function () {
+            restartButton.setScale(2.75);
+            restartButton.setScale(1.08333);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    restartButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    _this.sound.stopAll();
+                    _this.scene.start(CST_1.CST.SCENES.GAME);
+                },
+                loop: false
+            });
+        });
+        var homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.HOME).setDepth(6).setScale(2.5);
+        homeButton.setInteractive();
+        homeButton.on('pointerup', function () {
+            homeButton.setScale(2.75);
+            homeButton.setScale(1.08333);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    homeButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    _this.sound.stopAll();
+                    _this.scene.start(CST_1.CST.SCENES.MENU);
+                },
+                loop: false
+            });
+        });
+        this.cameras.main.shake(300);
         for (var i = 0; i < 20; i += 1) {
             this.time.addEvent({
                 delay: 250 * i,
