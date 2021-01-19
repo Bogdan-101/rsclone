@@ -22,8 +22,7 @@ export class LoadScene extends Phaser.Scene{
         }
     }
     loadSprites(frameConfig?: Phaser.Types.Loader.FileTypes.ImageFrameConfig){
-        this.load.setPath('./assets/sprites');
-
+        
         for(let prop in CST.SPRITE){
             //@ts-ignore
             this.load.spritesheet(CST.SPRITE[prop], CST.SPRITE[prop], frameConfig);
@@ -32,11 +31,18 @@ export class LoadScene extends Phaser.Scene{
     preload(){
         this.loadImages();
         this.loadSounds();
-        this.loadSprites({
+        this.load.setPath('./assets/sprites');
+        this.load.spritesheet(CST.SPRITE.PLANE, CST.SPRITE.PLANE, {
             frameHeight: 40,
             frameWidth: 28
         })
-
+        this.load.spritesheet(CST.SPRITE.ENEMY, CST.SPRITE.ENEMY, {
+            frameHeight: 24,
+            frameWidth: 16
+        })
+        
+        this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
+        this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         const loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,

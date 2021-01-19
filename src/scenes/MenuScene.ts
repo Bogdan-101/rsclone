@@ -32,7 +32,7 @@ export class MenuScene extends Phaser.Scene{
         }).setDepth(1);
 
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
-        const background = this.add.image(-100, 0, CST.IMAGES.SKY1).setOrigin(0).setScale(0.5);
+        const background = this.add.image(0, -100, CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
 
         const playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const playText = this.make.text({
@@ -63,7 +63,7 @@ export class MenuScene extends Phaser.Scene{
             this.time.addEvent({
                 delay: 200,
                 callback: ()=>{
-                    console.log('game start', CST.SCENES.GAME)
+                    this.sound.stopAll();
                     this.scene.start(CST.SCENES.GAME);
                 },
                 loop: false

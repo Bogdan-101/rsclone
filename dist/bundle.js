@@ -21,13 +21,18 @@ exports.CST = {
         LOGO: "logo.png",
         SKY1: "sky1.png",
         BIPLANE: "Biplane.png",
-        BUTTON: "Button.png"
+        BUTTON: "Button.png",
+        STAGE: "stage.png",
+        BULLET: "Bullet.png",
+        ENEMYBULLET: "EnemyBullet.png"
     },
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"
     },
     SPRITE: {
-        PLANE: "PlaneSprites.png"
+        PLANE: "PlaneSprites.png",
+        ROCKET: "Rockets.png",
+        ENEMY: "Enemy.png"
     }
 };
 
@@ -66,6 +71,89 @@ var game = new Phaser.Game({
 
 /***/ }),
 
+/***/ "./src/planes/Enemy.ts":
+/*!*****************************!*\
+  !*** ./src/planes/Enemy.ts ***!
+  \*****************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var Enemy = /** @class */ (function (_super) {
+    __extends(Enemy, _super);
+    function Enemy(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.setFrame(1);
+        _this.rockets = scene.physics.add.group();
+        _this.setDepth(-2);
+        return _this;
+    }
+    Enemy.prototype.init = function (player) {
+        var _this = this;
+        //@ts-ignore
+        this.scene.physics.add.collider(player, this.rockets, function () { return _this.scene.GameOver(); }, null, this);
+        this.anims.create({
+            key: 'die',
+            frames: this.anims.generateFrameNumbers(CST_1.CST.SPRITE.ENEMY, { start: 3, end: 4 }),
+            frameRate: 24,
+            repeat: 1
+        });
+    };
+    Enemy.prototype.Die = function () {
+        this.setFrame(3);
+        var expl = this.scene.add.sprite(this.x + Phaser.Math.Between(-5, 5), this.y + Phaser.Math.Between(-5, 5), 'explosion1');
+        expl.play('enemyExplode');
+        this.scene.time.addEvent({
+            delay: 250,
+            callback: function () {
+                expl.destroy();
+            },
+            loop: false
+        });
+        this.destroy();
+    };
+    Enemy.prototype.setTarget = function (target) {
+        this.target = target;
+    };
+    Enemy.prototype.update = function (t, dt) {
+        if (!this.target) {
+            return;
+        }
+        var tx = this.target.x;
+        var ty = this.target.y;
+        var x = this.x;
+        var y = this.y;
+        var rotation = Phaser.Math.Angle.Between(x, y, tx, ty);
+        this.setRotation(rotation - 1.575);
+        if (t > this.lastFired || typeof (this.lastFired) === 'undefined') {
+            this.lastFired = t + 1500;
+            var rocket = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
+            rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
+            rocket.setAcceleration(0, 10);
+            // this.player.setRotation(this.player.rotation + 3.15);
+        }
+    };
+    return Enemy;
+}(Phaser.GameObjects.Sprite));
+exports.default = Enemy;
+
+
+/***/ }),
+
 /***/ "./src/scenes/GameScene.ts":
 /*!*********************************!*\
   !*** ./src/scenes/GameScene.ts ***!
@@ -86,9 +174,13 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var Enemy_1 = __importDefault(__webpack_require__(/*! ../planes/Enemy */ "./src/planes/Enemy.ts"));
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -97,9 +189,9 @@ var GameScene = /** @class */ (function (_super) {
         }) || this;
     }
     GameScene.prototype.init = function () {
-        console.log('game');
     };
     GameScene.prototype.preload = function () {
+        this.lastFired = 0;
         this.anims.create({
             key: 'left',
             frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 0 }],
@@ -117,45 +209,139 @@ var GameScene = /** @class */ (function (_super) {
             frameRate: 24,
             repeat: -1
         });
+        this.anims.create({
+            key: 'explode',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('explosion2', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 0,
+                end: 6,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'enemyExplode',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('explosion1', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 0,
+                end: 5,
+                zeroPad: 1
+            })
+        });
         this.cursors = this.input.keyboard.createCursorKeys();
         this.player = this.physics.add.sprite(100, 450, CST_1.CST.SPRITE.PLANE);
+        this.player.setCollideWorldBounds(true);
     };
-    GameScene.prototype.update = function () {
-        if (this.cursors.left.isDown) {
-            console.log('left');
-            this.player.setVelocityX(-160);
-            this.player.anims.play('left');
+    GameScene.prototype.update = function (time, delta) {
+        if (this.isDead === false) {
+            if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-160);
+                this.player.anims.play('left');
+            }
+            else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(160);
+                this.player.anims.play('right', true);
+            }
+            else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('turn');
+            }
+            if (this.cursors.up.isDown) {
+                this.player.setVelocityY(-160);
+                this.player.anims.play('turn');
+            }
+            else if (this.cursors.down.isDown) {
+                this.player.setVelocityY(+160);
+                this.player.anims.play('turn');
+            }
+            else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            if (!(this.cursors.up.isDown || this.cursors.down.isDown)) {
+                this.player.setVelocityY(0);
+            }
+            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityX(0);
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            this.background.tilePositionY -= 0.5;
+            if (this.cursors.space.isDown && time > this.lastFired) {
+                if (typeof (this.lastSpawned) === 'undefined')
+                    this.lastSpawned = time;
+                this.lastFired = time + 200;
+                var bullet = this.bullets.create(this.player.x, this.player.y - 10, CST_1.CST.IMAGES.BULLET).setDepth(-2).setScale(0.25);
+                bullet.setVelocityY(-600);
+                bullet.setAcceleration(0, -50);
+            }
+            if (time > this.lastSpawned) {
+                this.lastSpawned = time + 3000;
+                var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), 50, CST_1.CST.SPRITE.ENEMY);
+                enemy_1.init(this.player);
+                this.physics.add.collider(this.bullets, enemy_1, function () {
+                    enemy_1.Die();
+                    //@ts-ignore
+                }, null, this);
+                enemy_1.setTarget(this.player);
+            }
         }
-        else if (this.cursors.right.isDown) {
-            console.log('right');
-            this.player.setVelocityX(160);
-            this.player.anims.play('right', true);
+    };
+    GameScene.prototype.GameOver = function () {
+        var _this = this;
+        this.isDead = true;
+        this.physics.pause();
+        this.player.setTint(0xff5555);
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1);
+        for (var i = 0; i < 20; i += 1) {
+            this.time.addEvent({
+                delay: 250 * i,
+                callback: function () {
+                    var expl = _this.add.sprite(_this.player.x + Phaser.Math.Between(-20, 20), _this.player.y + Phaser.Math.Between(-20, 20), 'explosion2');
+                    expl.play('explode');
+                    _this.time.addEvent({
+                        delay: 450,
+                        callback: function () {
+                            expl.destroy();
+                        },
+                        loop: false
+                    });
+                    _this.player.setRotation(_this.player.rotation += 0.5);
+                    _this.player.setScale(_this.player.scale - 0.05);
+                },
+                loop: false
+            });
         }
-        else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
-        }
-        if (this.cursors.up.isDown) {
-            console.log('up');
-            this.player.setVelocityY(-160);
-            this.player.anims.play('turn');
-        }
-        else if (this.cursors.down.isDown) {
-            console.log('down');
-            this.player.setVelocityY(+160);
-            this.player.anims.play('turn');
-        }
-        else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
-            this.player.setVelocityY(0);
-            this.player.anims.play('turn');
-        }
-        if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
-            this.player.setVelocityX(0);
-            this.player.setVelocityY(0);
-            this.player.anims.play('turn');
-        }
+        this.background.tilePositionY = 0;
     };
     GameScene.prototype.create = function () {
+        var _this = this;
+        this.isDead = false;
+        this.bullets = this.physics.add.group();
+        this.enemies = this.physics.add.group({
+            classType: Enemy_1.default,
+            runChildUpdate: true
+        });
+        var _loop_1 = function (i) {
+            var enemy = this_1.enemies.get(Phaser.Math.Between(0, 800), 50, CST_1.CST.SPRITE.ENEMY);
+            enemy.init(this_1.player);
+            this_1.physics.add.collider(this_1.bullets, enemy, function () {
+                enemy.Die();
+                //@ts-ignore
+            }, null, this_1);
+        };
+        var this_1 = this;
+        for (var i = 0; i < 5; i += 1) {
+            _loop_1(i);
+        }
+        this.enemies.children.each(function (child) {
+            var enemy = child;
+            enemy.setTarget(_this.player);
+        });
+        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE).setDepth(-3).setOrigin(0).setScale(3.125);
     };
     return GameScene;
 }(Phaser.Scene));
@@ -209,7 +395,6 @@ var LoadScene = /** @class */ (function (_super) {
         }
     };
     LoadScene.prototype.loadSprites = function (frameConfig) {
-        this.load.setPath('./assets/sprites');
         for (var prop in CST_1.CST.SPRITE) {
             //@ts-ignore
             this.load.spritesheet(CST_1.CST.SPRITE[prop], CST_1.CST.SPRITE[prop], frameConfig);
@@ -219,10 +404,17 @@ var LoadScene = /** @class */ (function (_super) {
         var _this = this;
         this.loadImages();
         this.loadSounds();
-        this.loadSprites({
+        this.load.setPath('./assets/sprites');
+        this.load.spritesheet(CST_1.CST.SPRITE.PLANE, CST_1.CST.SPRITE.PLANE, {
             frameHeight: 40,
             frameWidth: 28
         });
+        this.load.spritesheet(CST_1.CST.SPRITE.ENEMY, CST_1.CST.SPRITE.ENEMY, {
+            frameHeight: 24,
+            frameWidth: 16
+        });
+        this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
+        this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         var loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,
@@ -476,7 +668,7 @@ var MenuScene = /** @class */ (function (_super) {
             }
         }).setDepth(1);
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
-        var background = this.add.image(-100, 0, CST_1.CST.IMAGES.SKY1).setOrigin(0).setScale(0.5);
+        var background = this.add.image(0, -100, CST_1.CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
         var playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         var playText = this.make.text({
             x: this.game.renderer.width / 2 + 175,
@@ -505,7 +697,7 @@ var MenuScene = /** @class */ (function (_super) {
             _this.time.addEvent({
                 delay: 200,
                 callback: function () {
-                    console.log('game start', CST_1.CST.SCENES.GAME);
+                    _this.sound.stopAll();
                     _this.scene.start(CST_1.CST.SCENES.GAME);
                 },
                 loop: false
