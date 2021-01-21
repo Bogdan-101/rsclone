@@ -22,6 +22,7 @@ export const CST = {
     SPRITE: {
         PLANE: "PlaneSprites.png",
         ROCKET: "Rockets.png",
-        ENEMY: "Enemy.png"
+        ENEMY: "Enemy.png",
+        ENEMYATLAS: "EnemyPlaneAtlas.png"
     }
 }

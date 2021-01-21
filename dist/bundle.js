@@ -35,7 +35,8 @@ exports.CST = {
     SPRITE: {
         PLANE: "PlaneSprites.png",
         ROCKET: "Rockets.png",
-        ENEMY: "Enemy.png"
+        ENEMY: "Enemy.png",
+        ENEMYATLAS: "EnemyPlaneAtlas.png"
     }
 };
 
@@ -100,15 +101,16 @@ var Enemy = /** @class */ (function (_super) {
     __extends(Enemy, _super);
     function Enemy(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setFrame(1);
+        _this.anims.play('enemyIdle');
         _this.rockets = scene.physics.add.group();
         _this.setDepth(-2);
+        _this.isMoving = false;
+        _this.isAlive = true;
         return _this;
     }
-    Enemy.prototype.init = function (player) {
-        var _this = this;
+    Enemy.prototype.init = function (player, scene) {
         //@ts-ignore
-        this.scene.physics.add.collider(player, this.rockets, function () { return _this.scene.GameOver(); }, null, this);
+        this.scene.physics.add.collider(player, this.rockets, function () { return scene.GameOver(); }, null, this);
         this.anims.create({
             key: 'die',
             frames: this.anims.generateFrameNumbers(CST_1.CST.SPRITE.ENEMY, { start: 3, end: 4 }),
@@ -116,8 +118,39 @@ var Enemy = /** @class */ (function (_super) {
             repeat: 1
         });
     };
+    Enemy.prototype.CreateMovement = function () {
+        var _this = this;
+        var yMoving = Phaser.Math.FloatBetween(0, 100);
+        var xMoving = Phaser.Math.FloatBetween(-100, 100);
+        var chance = Phaser.Math.Between(0, 1);
+        if (this.y + yMoving > 250)
+            yMoving = -yMoving;
+        if (chance === 1) {
+            if (xMoving > 0)
+                this.anims.play('moveRight');
+            else
+                this.anims.play('moveLeft');
+            this.scene.tweens.add({
+                targets: this,
+                y: this.y + yMoving,
+                x: this.x + xMoving,
+                duration: 1000,
+                ease: 'Quad.easeInOut'
+            });
+        }
+        this.scene.time.addEvent({
+            delay: 1250,
+            callback: function () {
+                _this.isMoving = false;
+                if (_this.isAlive === true)
+                    _this.anims.play('enemyIdle');
+            },
+            loop: false
+        });
+    };
     Enemy.prototype.Die = function () {
-        this.setFrame(3);
+        this.anims.play('enemyDie');
+        this.isAlive = false;
         var expl = this.scene.add.sprite(this.x + Phaser.Math.Between(-5, 5), this.y + Phaser.Math.Between(-5, 5), 'explosion1');
         expl.play('enemyExplode');
         this.scene.time.addEvent({
@@ -148,6 +181,10 @@ var Enemy = /** @class */ (function (_super) {
             rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
             rocket.setAcceleration(0, 10);
             // this.player.setRotation(this.player.rotation + 3.15);
+        }
+        if (!this.isMoving) {
+            this.isMoving = true;
+            this.CreateMovement();
         }
     };
     return Enemy;
@@ -194,6 +231,7 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.init = function () {
     };
     GameScene.prototype.preload = function () {
+        var _this = this;
         this.lastFired = 0;
         this.anims.create({
             key: 'left',
@@ -234,9 +272,65 @@ var GameScene = /** @class */ (function (_super) {
                 zeroPad: 1
             })
         });
+        this.anims.create({
+            key: 'moveLeft',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 0,
+                end: 0,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'moveRight',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 2,
+                end: 2,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'enemyIdle',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 1,
+                end: 1,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'enemyDie',
+            frameRate: 5,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 3,
+                end: 4,
+                zeroPad: 1
+            })
+        });
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.player = this.physics.add.sprite(100, 450, CST_1.CST.SPRITE.PLANE);
-        this.player.setCollideWorldBounds(true);
+        this.player = this.physics.add.sprite(this.game.renderer.width / 2, this.game.renderer.height + 100, CST_1.CST.SPRITE.PLANE);
+        this.tweens.add({
+            targets: this.player,
+            y: this.game.renderer.height - 100,
+            duration: 1000,
+            ease: 'Power1'
+        });
+        this.time.addEvent({
+            delay: 1250,
+            callback: function () {
+                _this.player.setCollideWorldBounds(true);
+            },
+            loop: false
+        });
     };
     GameScene.prototype.update = function (time, delta) {
         if (this.isDead === false) {
@@ -282,9 +376,15 @@ var GameScene = /** @class */ (function (_super) {
                 bullet.setAcceleration(0, -50);
             }
             if (time > this.lastSpawned) {
-                this.lastSpawned = time + 3000;
-                var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), 50, CST_1.CST.SPRITE.ENEMY);
-                enemy_1.init(this.player);
+                this.lastSpawned = time + 1000;
+                var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST_1.CST.SPRITE.ENEMYATLAS);
+                enemy_1.init(this.player, this);
+                this.tweens.add({
+                    targets: enemy_1,
+                    y: 50,
+                    duration: 1000,
+                    ease: 'Power1'
+                });
                 this.physics.add.collider(this.bullets, enemy_1, function () {
                     enemy_1.Die();
                     //@ts-ignore
@@ -316,6 +416,7 @@ var GameScene = /** @class */ (function (_super) {
                 delay: 200,
                 callback: function () {
                     _this.sound.stopAll();
+                    _this.scene.stop();
                     _this.scene.start(CST_1.CST.SCENES.GAME);
                 },
                 loop: false
@@ -342,7 +443,7 @@ var GameScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        this.cameras.main.shake(300);
+        this.cameras.main.shake(300, 0.02);
         for (var i = 0; i < 20; i += 1) {
             this.time.addEvent({
                 delay: 250 * i,
@@ -373,8 +474,14 @@ var GameScene = /** @class */ (function (_super) {
             runChildUpdate: true
         });
         var _loop_1 = function (i) {
-            var enemy = this_1.enemies.get(Phaser.Math.Between(0, 800), 50, CST_1.CST.SPRITE.ENEMY);
-            enemy.init(this_1.player);
+            var enemy = this_1.enemies.get(Phaser.Math.Between(100, 800), -50, CST_1.CST.SPRITE.ENEMYATLAS);
+            enemy.init(this_1.player, this_1);
+            this_1.tweens.add({
+                targets: enemy,
+                y: 50,
+                duration: 1000,
+                ease: 'Power1'
+            });
             this_1.physics.add.collider(this_1.bullets, enemy, function () {
                 enemy.Die();
                 //@ts-ignore
@@ -462,6 +569,7 @@ var LoadScene = /** @class */ (function (_super) {
         });
         this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
+        this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
         var loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,

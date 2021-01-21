@@ -66,9 +66,70 @@ export class GameScene extends Phaser.Scene{
             })
         });
 
+        
+        this.anims.create({
+            key: 'moveLeft',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 0,
+                end: 0,
+                zeroPad: 1
+            })
+        });
+
+        this.anims.create({
+            key: 'moveRight',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 2,
+                end: 2,
+                zeroPad: 1
+            })
+        });
+
+        this.anims.create({
+            key: 'enemyIdle',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 1,
+                end: 1,
+                zeroPad: 1
+            })
+        });
+
+        this.anims.create({
+            key: 'enemyDie',
+            frameRate: 5,
+            frames: this.anims.generateFrameNames('enemyPlane', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 3,
+                end: 4,
+                zeroPad: 1
+            })
+        });
+
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.player = this.physics.add.sprite(100, 450, CST.SPRITE.PLANE);
-        this.player.setCollideWorldBounds(true);
+        this.player = this.physics.add.sprite(this.game.renderer.width / 2, this.game.renderer.height + 100, CST.SPRITE.PLANE);
+        this.tweens.add({
+            targets: this.player,
+            y: this.game.renderer.height - 100,
+            duration: 1000,
+            ease: 'Power1'
+        });
+        this.time.addEvent({
+            delay: 1250,
+            callback: ()=>{
+                this.player.setCollideWorldBounds(true);
+            },
+            loop: false
+        });
     }
 
     update(time: number, delta: number){
@@ -132,9 +193,15 @@ export class GameScene extends Phaser.Scene{
             }
     
             if (time > this.lastSpawned) {
-                this.lastSpawned = time + 3000;
-                const enemy = this.enemies.get(Phaser.Math.Between(100, 700), 50, CST.SPRITE.ENEMY);
-                enemy.init(this.player);
+                this.lastSpawned = time + 1000;
+                const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
+                enemy.init(this.player, this);
+                this.tweens.add({
+                    targets: enemy,
+                    y: 50,
+                    duration: 1000,
+                    ease: 'Power1'
+                });
                 this.physics.add.collider(this.bullets, enemy, ()=>{
                     enemy.Die();
                     //@ts-ignore
@@ -168,6 +235,7 @@ export class GameScene extends Phaser.Scene{
                 delay: 200,
                 callback: ()=>{
                     this.sound.stopAll();
+                    this.scene.stop();
                     this.scene.start(CST.SCENES.GAME);
                 },
                 loop: false
@@ -198,12 +266,16 @@ export class GameScene extends Phaser.Scene{
             });
         });
 
-        this.cameras.main.shake(300);
+        this.cameras.main.shake(300, 0.02);
         for (let i = 0; i < 20; i += 1) {
             this.time.addEvent({
                 delay: 250 * i,
                 callback: ()=>{
-                    const expl: Phaser.GameObjects.Sprite = this.add.sprite(this.player.x + Phaser.Math.Between(-20, 20), this.player.y + Phaser.Math.Between(-20, 20), 'explosion2');
+                    const expl: Phaser.GameObjects.Sprite = this.add.sprite(
+                        this.player.x + Phaser.Math.Between(-20, 20),
+                        this.player.y + Phaser.Math.Between(-20, 20),
+                        'explosion2'
+                        );
                     expl.play('explode');
                     this.time.addEvent({
                         delay: 450,
@@ -230,8 +302,14 @@ export class GameScene extends Phaser.Scene{
         })
         
         for (let i=0; i < 5; i += 1) {
-            const enemy = this.enemies.get(Phaser.Math.Between(0, 800), 50, CST.SPRITE.ENEMY);
-            enemy.init(this.player);
+            const enemy = this.enemies.get(Phaser.Math.Between(100, 800), -50, CST.SPRITE.ENEMYATLAS);
+            enemy.init(this.player, this);
+            this.tweens.add({
+                targets: enemy,
+                y: 50,
+                duration: 1000,
+                ease: 'Power1'
+            });
             this.physics.add.collider(this.bullets, enemy, ()=>{
                 enemy.Die();
                 //@ts-ignore

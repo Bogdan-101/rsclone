@@ -43,6 +43,7 @@ export class LoadScene extends Phaser.Scene{
         
         this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
+        this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
         const loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,
