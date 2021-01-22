@@ -16,7 +16,8 @@ exports.CST = {
         LOAD: "LOAD",
         MENU: "MENU",
         GAME: "GAME",
-        CHOOSELEVEL: "CHOOSELEVEL"
+        CHOOSELEVEL: "CHOOSELEVEL",
+        HUDSCENE: "HUDSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -28,7 +29,8 @@ exports.CST = {
         ENEMYBULLET: "EnemyBullet.png",
         GAMEOVER: "game_over.png",
         RESTART: "Restart.png",
-        HOME: "Home.png"
+        HOME: "Home.png",
+        HPBACK: "HPBack.png"
     },
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"
@@ -38,7 +40,8 @@ exports.CST = {
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
         ENEMYATLAS: "EnemyPlaneAtlas.png",
-        LEVELBUTTON: "LevelButton.png"
+        LEVELBUTTON: "LevelButton.png",
+        HEART: "HealthHearts.png"
     }
 };
 
@@ -58,11 +61,12 @@ var GameScene_1 = __webpack_require__(/*! ./scenes/GameScene */ "./src/scenes/Ga
 var LoadScene_1 = __webpack_require__(/*! ./scenes/LoadScene */ "./src/scenes/LoadScene.ts");
 var MenuScene_1 = __webpack_require__(/*! ./scenes/MenuScene */ "./src/scenes/MenuScene.ts");
 var ChooseScene_1 = __webpack_require__(/*! ./scenes/ChooseScene */ "./src/scenes/ChooseScene.ts");
+var HUDScene_1 = __webpack_require__(/*! ./scenes/HUDScene */ "./src/scenes/HUDScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene
     ],
     render: {
         pixelArt: true
@@ -113,7 +117,9 @@ var Enemy = /** @class */ (function (_super) {
     }
     Enemy.prototype.init = function (player, scene) {
         //@ts-ignore
-        this.scene.physics.add.collider(player, this.rockets, function () { return scene.GameOver(); }, null, this);
+        this.scene.physics.add.collider(player, this.rockets, function (f, s) { return scene.Hit(s); }, null, this);
+        //@ts-ignore
+        this.scene.physics.add.collider(player, this, function () { return scene.Hit(); }, null, this);
         this.anims.create({
             key: 'die',
             frames: this.anims.generateFrameNumbers(CST_1.CST.SPRITE.ENEMY, { start: 3, end: 4 }),
@@ -127,9 +133,11 @@ var Enemy = /** @class */ (function (_super) {
         var xMoving = Phaser.Math.FloatBetween(-100, 100);
         var chance = Phaser.Math.Between(0, 1);
         if (this.y + yMoving > 250 || this.y + yMoving < 0)
-            yMoving = -yMoving;
-        if (this.x + xMoving > 700 || this.x + xMoving < 100)
-            xMoving = -xMoving;
+            yMoving = 50 - this.y;
+        if (this.x + xMoving > 700)
+            xMoving = 600 - this.x;
+        else if (this.x + xMoving < 100)
+            xMoving = 125 - this.x;
         if (chance === 1) {
             if (xMoving > 0)
                 this.anims.play('moveRight');
@@ -182,10 +190,16 @@ var Enemy = /** @class */ (function (_super) {
         this.setRotation(rotation - 1.575);
         if (t > this.lastFired || typeof (this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
-            var rocket = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
-            rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
-            rocket.setAcceleration(0, 10);
-            // this.player.setRotation(this.player.rotation + 3.15);
+            var rocket_1 = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
+            rocket_1.setVelocity(-Math.sin(rocket_1.rotation) * 200, Math.cos(rocket_1.rotation) * 200);
+            rocket_1.setAcceleration(0, 10);
+            this.scene.time.addEvent({
+                loop: false,
+                callback: function () {
+                    rocket_1.destroy();
+                },
+                delay: 3000
+            });
         }
         if (!this.isMoving) {
             this.isMoving = true;
@@ -195,6 +209,141 @@ var Enemy = /** @class */ (function (_super) {
     return Enemy;
 }(Phaser.GameObjects.Sprite));
 exports.default = Enemy;
+
+
+/***/ }),
+
+/***/ "./src/planes/HeroPlane.ts":
+/*!*********************************!*\
+  !*** ./src/planes/HeroPlane.ts ***!
+  \*********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var Hero = /** @class */ (function (_super) {
+    __extends(Hero, _super);
+    function Hero(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        scene.sys.updateList.add(_this);
+        scene.sys.displayList.add(_this);
+        _this.health = 0;
+        _this.lastFired = 0;
+        _this.bullets = _this.scene.physics.add.group();
+        _this.anims.play('turn');
+        _this.setDepth(-10);
+        _this.cursors = _this.scene.input.keyboard.createCursorKeys();
+        _this.isDestroyable = true;
+        _this.player = _this.scene.physics.add.sprite(_this.x, _this.scene.game.renderer.height + 100, CST_1.CST.SPRITE.PLANE);
+        _this.player.setImmovable(true);
+        _this.scene.tweens.add({
+            targets: _this.player,
+            y: y,
+            duration: 1000,
+            ease: 'Power1'
+        });
+        _this.scene.time.addEvent({
+            delay: 1250,
+            callback: function () {
+                _this.player.setCollideWorldBounds(true);
+            },
+            loop: false
+        });
+        _this.health = 6;
+        scene.registry.set('health', _this.health);
+        return _this;
+    }
+    Hero.prototype.Hit = function () {
+        var _this = this;
+        if (this.isDestroyable) {
+            this.health--;
+            this.isDestroyable = false;
+            this.scene.time.addEvent({
+                delay: 2000,
+                callback: function () {
+                    _this.isDestroyable = true;
+                    _this.player.setAlpha(1);
+                    console.log('destructable');
+                },
+                loop: false
+            });
+            this.scene.tweens.add({
+                targets: this.player,
+                alpha: { from: 0, to: 1 },
+                ease: 'Cubic.easeOut',
+                duration: 400,
+                repeat: 5
+            });
+        }
+        // console.log(this.health);
+        return this.health;
+    };
+    Hero.prototype.update = function (time, delta) {
+        if (this.health !== 0) {
+            if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-160);
+                this.player.anims.play('left');
+            }
+            else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(160);
+                this.player.anims.play('right', true);
+            }
+            else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('turn');
+            }
+            if (this.cursors.up.isDown) {
+                this.player.setVelocityY(-160);
+                this.player.anims.play('turn');
+            }
+            else if (this.cursors.down.isDown) {
+                this.player.setVelocityY(+160);
+                this.player.anims.play('turn');
+            }
+            else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            if (!(this.cursors.up.isDown || this.cursors.down.isDown)) {
+                this.player.setVelocityY(0);
+            }
+            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityX(0);
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            if (this.cursors.space.isDown && time > this.lastFired) {
+                this.lastFired = time + 200;
+                var bullet_1 = this.bullets.create(this.player.x, this.player.y - 10, CST_1.CST.IMAGES.BULLET).setDepth(-2).setScale(0.25);
+                bullet_1.setVelocityY(-600);
+                bullet_1.setAcceleration(0, -50);
+                this.scene.time.addEvent({
+                    loop: false,
+                    callback: function () {
+                        bullet_1.destroy();
+                    },
+                    delay: 3000
+                });
+            }
+        }
+    };
+    return Hero;
+}(Phaser.GameObjects.Sprite));
+exports.default = Hero;
 
 
 /***/ }),
@@ -272,6 +421,16 @@ var ChooseScene = /** @class */ (function (_super) {
                 },
                 loop: false
             });
+        });
+        var level1Text = this.make.text({
+            x: this.game.renderer.width / 3 + 75,
+            y: this.game.renderer.height / 2 - 88,
+            text: 'Jungle',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
         });
         var level2 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2, CST_1.CST.SPRITE.LEVELBUTTON).setOrigin(0);
         level2.anims.play('ButtonSteady');
@@ -358,6 +517,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
 var Enemy_1 = __importDefault(__webpack_require__(/*! ../planes/Enemy */ "./src/planes/Enemy.ts"));
+var HeroPlane_1 = __importDefault(__webpack_require__(/*! ../planes/HeroPlane */ "./src/planes/HeroPlane.ts"));
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -368,8 +528,6 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.init = function () {
     };
     GameScene.prototype.preload = function () {
-        var _this = this;
-        this.lastFired = 0;
         this.anims.create({
             key: 'explode',
             frameRate: 10,
@@ -436,95 +594,55 @@ var GameScene = /** @class */ (function (_super) {
                 zeroPad: 1
             })
         });
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.player = this.physics.add.sprite(this.game.renderer.width / 2, this.game.renderer.height + 100, CST_1.CST.SPRITE.PLANE);
         this.tweens.add({
             targets: this.player,
             y: this.game.renderer.height - 100,
             duration: 1000,
             ease: 'Power1'
         });
-        this.time.addEvent({
-            delay: 1250,
-            callback: function () {
-                _this.player.setCollideWorldBounds(true);
-            },
-            loop: false
-        });
     };
     GameScene.prototype.update = function (time, delta) {
-        if (this.isDead === false) {
-            if (this.cursors.left.isDown) {
-                this.player.setVelocityX(-160);
-                this.player.anims.play('left');
-            }
-            else if (this.cursors.right.isDown) {
-                this.player.setVelocityX(160);
-                this.player.anims.play('right', true);
-            }
-            else {
-                this.player.setVelocityX(0);
-                this.player.anims.play('turn');
-            }
-            if (this.cursors.up.isDown) {
-                this.player.setVelocityY(-160);
-                this.player.anims.play('turn');
-            }
-            else if (this.cursors.down.isDown) {
-                this.player.setVelocityY(+160);
-                this.player.anims.play('turn');
-            }
-            else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
-                this.player.setVelocityY(0);
-                this.player.anims.play('turn');
-            }
-            if (!(this.cursors.up.isDown || this.cursors.down.isDown)) {
-                this.player.setVelocityY(0);
-            }
-            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
-                this.player.setVelocityX(0);
-                this.player.setVelocityY(0);
-                this.player.anims.play('turn');
-            }
+        this.player.update(time, delta);
+        if (typeof (this.lastSpawned) === 'undefined')
+            this.lastSpawned = time + 5000;
+        if (this.player.health !== 0) {
             this.background.tilePositionY -= 0.5;
-            if (this.cursors.space.isDown && time > this.lastFired) {
-                if (typeof (this.lastSpawned) === 'undefined')
-                    this.lastSpawned = time;
-                this.lastFired = time + 200;
-                var bullet = this.bullets.create(this.player.x, this.player.y - 10, CST_1.CST.IMAGES.BULLET).setDepth(-2).setScale(0.25);
-                bullet.setVelocityY(-600);
-                bullet.setAcceleration(0, -50);
-            }
             if (time > this.lastSpawned) {
                 this.lastSpawned = time + 1000;
                 var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST_1.CST.SPRITE.ENEMYATLAS);
-                enemy_1.init(this.player, this);
+                enemy_1.init(this.player.player, this);
                 this.tweens.add({
                     targets: enemy_1,
                     y: 50,
                     duration: 1000,
                     ease: 'Power1'
                 });
-                this.physics.add.collider(this.bullets, enemy_1, function () {
+                this.physics.add.collider(this.player.bullets, enemy_1, function () {
                     enemy_1.Die();
                     //@ts-ignore
                 }, null, this);
-                enemy_1.setTarget(this.player);
+                enemy_1.setTarget(this.player.player);
             }
         }
     };
-    GameScene.prototype.GameOver = function () {
+    GameScene.prototype.Hit = function (s) {
         var _this = this;
-        this.isDead = true;
+        this.registry.set('health', this.player.health);
+        if (s)
+            s.destroy();
+        if (this.player.Hit() !== 0) {
+            return;
+        }
+        this.scene.pause(CST_1.CST.SCENES.HUDSCENE);
+        this.scene.setVisible(false, CST_1.CST.SCENES.HUDSCENE);
         this.physics.pause();
-        this.player.setTint(0xff5555);
+        this.player.player.setTint(0xff5555);
         this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1).setScale(2);
         this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER).setDepth(5);
         var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART).setDepth(5).setScale(2.5);
         restartButton.setInteractive();
         restartButton.on('pointerup', function () {
             restartButton.setScale(2.75);
-            restartButton.setScale(1.08333);
             _this.time.addEvent({
                 delay: 100,
                 callback: function () {
@@ -538,6 +656,8 @@ var GameScene = /** @class */ (function (_super) {
                     _this.sound.stopAll();
                     _this.scene.stop();
                     _this.scene.start(CST_1.CST.SCENES.GAME);
+                    _this.scene.resume(CST_1.CST.SCENES.HUDSCENE);
+                    _this.scene.setVisible(true, CST_1.CST.SCENES.HUDSCENE);
                 },
                 loop: false
             });
@@ -546,7 +666,6 @@ var GameScene = /** @class */ (function (_super) {
         homeButton.setInteractive();
         homeButton.on('pointerup', function () {
             homeButton.setScale(2.75);
-            homeButton.setScale(1.08333);
             _this.time.addEvent({
                 delay: 100,
                 callback: function () {
@@ -568,7 +687,7 @@ var GameScene = /** @class */ (function (_super) {
             this.time.addEvent({
                 delay: 250 * i,
                 callback: function () {
-                    var expl = _this.add.sprite(_this.player.x + Phaser.Math.Between(-20, 20), _this.player.y + Phaser.Math.Between(-20, 20), 'explosion2');
+                    var expl = _this.add.sprite(_this.player.player.x + Phaser.Math.Between(-20, 20), _this.player.player.y + Phaser.Math.Between(-20, 20), 'explosion2');
                     expl.play('explode');
                     _this.time.addEvent({
                         delay: 450,
@@ -577,8 +696,8 @@ var GameScene = /** @class */ (function (_super) {
                         },
                         loop: false
                     });
-                    _this.player.setRotation(_this.player.rotation += 0.5);
-                    _this.player.setScale(_this.player.scale - 0.05);
+                    _this.player.player.setRotation(_this.player.player.rotation += 0.5);
+                    _this.player.player.setScale(_this.player.player.scale - 0.05);
                 },
                 loop: false
             });
@@ -587,22 +706,22 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         var _this = this;
-        this.isDead = false;
-        this.bullets = this.physics.add.group();
+        this.scene.launch(CST_1.CST.SCENES.HUDSCENE);
+        this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST_1.CST.SPRITE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy_1.default,
             runChildUpdate: true
         });
         var _loop_1 = function (i) {
             var enemy = this_1.enemies.get(Phaser.Math.Between(100, 800), -50, CST_1.CST.SPRITE.ENEMYATLAS);
-            enemy.init(this_1.player, this_1);
+            enemy.init(this_1.player.player, this_1);
             this_1.tweens.add({
                 targets: enemy,
                 y: 50,
                 duration: 1000,
                 ease: 'Power1'
             });
-            this_1.physics.add.collider(this_1.bullets, enemy, function () {
+            this_1.physics.add.collider(this_1.player.bullets, enemy, function () {
                 enemy.Die();
                 //@ts-ignore
             }, null, this_1);
@@ -613,13 +732,123 @@ var GameScene = /** @class */ (function (_super) {
         }
         this.enemies.children.each(function (child) {
             var enemy = child;
-            enemy.setTarget(_this.player);
+            enemy.setTarget(_this.player.player);
         });
         this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE).setDepth(-3).setOrigin(0).setScale(3.125);
     };
     return GameScene;
 }(Phaser.Scene));
 exports.GameScene = GameScene;
+
+
+/***/ }),
+
+/***/ "./src/scenes/HUDScene.ts":
+/*!********************************!*\
+  !*** ./src/scenes/HUDScene.ts ***!
+  \********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HUDScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var HUDScene = /** @class */ (function (_super) {
+    __extends(HUDScene, _super);
+    function HUDScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.HUDSCENE
+        }) || this;
+    }
+    HUDScene.prototype.init = function () {
+    };
+    HUDScene.prototype.preload = function () {
+        this.anims.create({
+            key: 'HeartFull',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('HealthHearts', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 0,
+                end: 0,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'HeartHalf',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('HealthHearts', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 1,
+                end: 1,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'HeartEmpty',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('HealthHearts', {
+                prefix: 'tile00',
+                suffix: '.png',
+                start: 2,
+                end: 2,
+                zeroPad: 1
+            })
+        });
+    };
+    HUDScene.prototype.create = function () {
+        this.add.image(25, this.game.renderer.height, CST_1.CST.IMAGES.HPBACK).setOrigin(0, 1);
+        this.heart1 = this.physics.add.sprite(100, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
+        this.heart1.anims.play('HeartFull');
+        this.heart2 = this.physics.add.sprite(155, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
+        this.heart2.anims.play('HeartFull');
+        this.heart3 = this.physics.add.sprite(210, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
+        this.heart3.anims.play('HeartFull');
+        this.healthText = this.make.text({
+            x: this.game.renderer.width / 2 - 200,
+            y: this.game.renderer.height / 2 - 200,
+            text: this.registry.get('health'),
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '82px',
+                color: '#000000'
+            }
+        }).setDepth(10);
+    };
+    HUDScene.prototype.update = function () {
+        this.healthText.setText(this.registry.get('health'));
+        if (this.registry.get('health') === 6)
+            this.heart3.anims.play('HeartFull');
+        if (this.registry.get('health') === 5)
+            this.heart3.anims.play('HeartHalf');
+        if (this.registry.get('health') === 4)
+            this.heart3.anims.play('HeartEmpty');
+        if (this.registry.get('health') === 3)
+            this.heart2.anims.play('HeartHalf');
+        if (this.registry.get('health') === 2)
+            this.heart2.anims.play('HeartEmpty');
+        if (this.registry.get('health') === 1)
+            this.heart1.anims.play('HeartHalf');
+        if (this.registry.get('health') === 0)
+            this.heart1.anims.play('HeartEmpty');
+    };
+    return HUDScene;
+}(Phaser.Scene));
+exports.HUDScene = HUDScene;
 
 
 /***/ }),
@@ -691,6 +920,7 @@ var LoadScene = /** @class */ (function (_super) {
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
         this.load.atlas('levelButtons', '../../assets/sprites/LevelButton.png', '../../assets/sprites/LevelButton.json');
+        this.load.atlas('HealthHearts', '../../assets/sprites/HealthHearts.png', '../../assets/sprites/HealthHearts.json');
         var loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,

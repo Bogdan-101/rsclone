@@ -45,6 +45,7 @@ export class LoadScene extends Phaser.Scene{
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
         this.load.atlas('levelButtons', '../../assets/sprites/LevelButton.png', '../../assets/sprites/LevelButton.json');
+        this.load.atlas('HealthHearts', '../../assets/sprites/HealthHearts.png', '../../assets/sprites/HealthHearts.json');
         const loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,

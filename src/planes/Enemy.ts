@@ -1,5 +1,6 @@
 import IEnemy from './IEnemy';
 import { CST } from '../const/CST';
+import Hero from '../planes/HeroPlane';
 
 export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 {
@@ -17,10 +18,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         this.isMoving = false;
         this.isAlive = true;
 	}
-    
-    init(player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, scene: Phaser.Scene){
+
+    init(player: Hero, scene: Phaser.Scene){
         //@ts-ignore
-        this.scene.physics.add.collider(player, this.rockets, ()=>scene.GameOver(), null, this);
+        this.scene.physics.add.collider(player, this.rockets, (f, s) => scene.Hit(s), null, this);
+        //@ts-ignore
+        this.scene.physics.add.collider(player, this, () => scene.Hit(), null, this);
 
         this.anims.create({
             key: 'die',
@@ -36,10 +39,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         const chance = Phaser.Math.Between(0, 1);
 
         if (this.y + yMoving > 250 || this.y + yMoving < 0)
-            yMoving = -yMoving;
+            yMoving = 50 - this.y;
 
-        if (this.x + xMoving > 700 || this.x + xMoving < 100)
-            xMoving = -xMoving;
+        if (this.x + xMoving > 700)
+            xMoving = 600 - this.x;
+        else if (this.x + xMoving < 100)
+            xMoving = 125 - this.x;
 
         if (chance === 1){
             if (xMoving > 0)
@@ -83,7 +88,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 
 	setTarget(target: Phaser.GameObjects.Components.Transform): void
 	{
-		this.target = target
+		this.target = target;
 	}
 
 	update(t: number, dt: number): void
@@ -107,7 +112,13 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
             const rocket = this.rockets.create(x, y + 10, CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
             rocket.setVelocity(-Math.sin(rocket.rotation)*200, Math.cos(rocket.rotation)*200);
             rocket.setAcceleration(0, 10);
-            // this.player.setRotation(this.player.rotation + 3.15);
+            this.scene.time.addEvent({
+                loop: false,
+                callback: () => {
+                    rocket.destroy();
+                },
+                delay: 3000
+            })
         }
 
         if (!this.isMoving) {

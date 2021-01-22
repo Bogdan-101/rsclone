@@ -58,6 +58,17 @@ export class ChooseScene extends Phaser.Scene{
             });
         });
 
+        const level1Text = this.make.text({
+            x: this.game.renderer.width / 3 + 75,
+            y: this.game.renderer.height / 2 - 88,
+            text: 'Jungle',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
         const level2 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2, CST.SPRITE.LEVELBUTTON).setOrigin(0);
         level2.anims.play('ButtonSteady');
         level2.setInteractive();

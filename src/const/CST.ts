@@ -3,7 +3,8 @@ export const CST = {
         LOAD: "LOAD",
         MENU: "MENU",
         GAME: "GAME",
-        CHOOSELEVEL: "CHOOSELEVEL"
+        CHOOSELEVEL: "CHOOSELEVEL",
+        HUDSCENE: "HUDSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -15,7 +16,8 @@ export const CST = {
         ENEMYBULLET: "EnemyBullet.png",
         GAMEOVER: "game_over.png",
         RESTART: "Restart.png",
-        HOME: "Home.png"
+        HOME: "Home.png",
+        HPBACK: "HPBack.png"
     },
     AUDIO: {
         MAINIMENU: "MainMenuMusic.mp3"
@@ -25,6 +27,7 @@ export const CST = {
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
         ENEMYATLAS: "EnemyPlaneAtlas.png",
-        LEVELBUTTON: "LevelButton.png"
+        LEVELBUTTON: "LevelButton.png",
+        HEART: "HealthHearts.png"
     }
 }

@@ -1,6 +1,7 @@
 import { Game } from 'phaser';
 import { CST } from '../const/CST';
 import Enemy from '../planes/Enemy'
+import Hero from '../planes/HeroPlane';
 import IEnemy from '../planes/IEnemy'
 export class GameScene extends Phaser.Scene{
     constructor(){
@@ -11,18 +12,12 @@ export class GameScene extends Phaser.Scene{
     init(){
     }
     
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private player!: Hero;
     private background!: Phaser.GameObjects.TileSprite;
-    private bullets!: Phaser.Physics.Arcade.Group;
     private lastSpawned!: number;
-    private lastFired!: number;
     private enemies!: Phaser.GameObjects.Group;
-    private isDead!: boolean;
 
     preload(){
-        this.lastFired = 0;
-
         this.anims.create({
             key: 'explode',
             frameRate: 10,
@@ -46,7 +41,6 @@ export class GameScene extends Phaser.Scene{
                 zeroPad: 1
             })
         });
-
         
         this.anims.create({
             key: 'moveLeft',
@@ -96,106 +90,52 @@ export class GameScene extends Phaser.Scene{
             })
         });
 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.player = this.physics.add.sprite(this.game.renderer.width / 2, this.game.renderer.height + 100, CST.SPRITE.PLANE);
         this.tweens.add({
             targets: this.player,
             y: this.game.renderer.height - 100,
             duration: 1000,
             ease: 'Power1'
         });
-        this.time.addEvent({
-            delay: 1250,
-            callback: ()=>{
-                this.player.setCollideWorldBounds(true);
-            },
-            loop: false
-        });
+        
     }
 
     update(time: number, delta: number){
-        if (this.isDead === false) {
-            if (this.cursors.left.isDown)
-            {
-                this.player.setVelocityX(-160);
-    
-                this.player.anims.play('left');
-            }
-            else if (this.cursors.right.isDown)
-            {
-                this.player.setVelocityX(160);
-    
-                this.player.anims.play('right', true);
-            }
-            else {
-                this.player.setVelocityX(0);
-    
-                this.player.anims.play('turn');
-            }
-            if (this.cursors.up.isDown)
-            {
-                this.player.setVelocityY(-160);
-    
-                this.player.anims.play('turn');
-            }
-            else if (this.cursors.down.isDown)
-            {
-                this.player.setVelocityY(+160);
-    
-                this.player.anims.play('turn');
-            }
-            else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
-                this.player.setVelocityY(0);
-    
-                this.player.anims.play('turn');
-            }
-    
-            if (!(this.cursors.up.isDown || this.cursors.down.isDown)){
-                this.player.setVelocityY(0);
-            }
-    
-            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown))
-            {
-                this.player.setVelocityX(0);
-                this.player.setVelocityY(0);
-    
-                this.player.anims.play('turn');
-            }
-    
+        this.player.update(time, delta);
+        if (typeof(this.lastSpawned) === 'undefined')
+            this.lastSpawned = time + 5000;
+        if (this.player.health !== 0) {
             this.background.tilePositionY -= 0.5;
-    
-            if (this.cursors.space.isDown && time > this.lastFired) {
-                if (typeof(this.lastSpawned) === 'undefined')
-                    this.lastSpawned = time;
-                this.lastFired = time + 200;
-                const bullet = this.bullets.create(this.player.x, this.player.y - 10, CST.IMAGES.BULLET).setDepth(-2).setScale(0.25);
-                bullet.setVelocityY(-600);
-                bullet.setAcceleration(0, -50);
-            }
     
             if (time > this.lastSpawned) {
                 this.lastSpawned = time + 1000;
                 const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
-                enemy.init(this.player, this);
+                enemy.init(this.player.player, this);
                 this.tweens.add({
                     targets: enemy,
                     y: 50,
                     duration: 1000,
                     ease: 'Power1'
                 });
-                this.physics.add.collider(this.bullets, enemy, ()=>{
+                this.physics.add.collider(this.player.bullets, enemy, ()=>{
                     enemy.Die();
                     //@ts-ignore
                 }, null, this);
-                enemy.setTarget(this.player!)
+                enemy.setTarget(this.player.player!)
             }
         }
     }
     
-    GameOver(): void{
-        this.isDead = true;
+    Hit(s: any): void{
+        this.registry.set('health', this.player.health);
+        if (s)
+            s.destroy();
+        if (this.player.Hit() !== 0) {
+            return;
+        }
+        this.scene.pause(CST.SCENES.HUDSCENE);
+        this.scene.setVisible(false, CST.SCENES.HUDSCENE);
         this.physics.pause();
-        this.player.setTint(0xff5555);
+        this.player.player.setTint(0xff5555);
         this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1).setScale(2);
         this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST.IMAGES.GAMEOVER).setDepth(5);
         const restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST.IMAGES.RESTART).setDepth(5).setScale(2.5);
@@ -204,7 +144,6 @@ export class GameScene extends Phaser.Scene{
 
         restartButton.on('pointerup', () => {
             restartButton.setScale(2.75);
-            restartButton.setScale(1.08333);
             this.time.addEvent({
                 delay: 100,
                 callback: ()=>{
@@ -218,6 +157,8 @@ export class GameScene extends Phaser.Scene{
                     this.sound.stopAll();
                     this.scene.stop();
                     this.scene.start(CST.SCENES.GAME);
+                    this.scene.resume(CST.SCENES.HUDSCENE);
+                    this.scene.setVisible(true, CST.SCENES.HUDSCENE);
                 },
                 loop: false
             });
@@ -229,7 +170,6 @@ export class GameScene extends Phaser.Scene{
 
         homeButton.on('pointerup', () => {
             homeButton.setScale(2.75);
-            homeButton.setScale(1.08333);
             this.time.addEvent({
                 delay: 100,
                 callback: ()=>{
@@ -253,8 +193,8 @@ export class GameScene extends Phaser.Scene{
                 delay: 250 * i,
                 callback: ()=>{
                     const expl: Phaser.GameObjects.Sprite = this.add.sprite(
-                        this.player.x + Phaser.Math.Between(-20, 20),
-                        this.player.y + Phaser.Math.Between(-20, 20),
+                        this.player.player.x + Phaser.Math.Between(-20, 20),
+                        this.player.player.y + Phaser.Math.Between(-20, 20),
                         'explosion2'
                         );
                     expl.play('explode');
@@ -265,8 +205,8 @@ export class GameScene extends Phaser.Scene{
                         },
                         loop: false
                     });
-                    this.player.setRotation(this.player.rotation += 0.5);
-                    this.player.setScale(this.player.scale - 0.05);
+                    this.player.player.setRotation(this.player.player.rotation += 0.5);
+                    this.player.player.setScale(this.player.player.scale - 0.05);
                 },
                 loop: false
             });
@@ -275,8 +215,8 @@ export class GameScene extends Phaser.Scene{
     }
 
     create(){
-        this.isDead = false;
-        this.bullets = this.physics.add.group();
+        this.scene.launch(CST.SCENES.HUDSCENE);
+        this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height -200, CST.SPRITE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy,
 			runChildUpdate: true
@@ -284,14 +224,14 @@ export class GameScene extends Phaser.Scene{
         
         for (let i=0; i < 5; i += 1) {
             const enemy = this.enemies.get(Phaser.Math.Between(100, 800), -50, CST.SPRITE.ENEMYATLAS);
-            enemy.init(this.player, this);
+            enemy.init(this.player.player, this);
             this.tweens.add({
                 targets: enemy,
                 y: 50,
                 duration: 1000,
                 ease: 'Power1'
             });
-            this.physics.add.collider(this.bullets, enemy, ()=>{
+            this.physics.add.collider(this.player.bullets, enemy, ()=>{
                 enemy.Die();
                 //@ts-ignore
             }, null, this);
@@ -299,7 +239,7 @@ export class GameScene extends Phaser.Scene{
 
         this.enemies.children.each(child => {
 			const enemy = child as unknown as IEnemy
-			enemy.setTarget(this.player!)
+			enemy.setTarget(this.player.player!)
 		})
 
         this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST.IMAGES.STAGE).setDepth(-3).setOrigin(0).setScale(3.125);
