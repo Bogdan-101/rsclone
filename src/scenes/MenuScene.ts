@@ -1,23 +1,128 @@
 import { CST } from '../const/CST';
 
 export class MenuScene extends Phaser.Scene{
+    private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private isPlayable!: boolean;
+    private lastFired!: number;
+    private bullets!: Phaser.Physics.Arcade.Group;
     constructor(){
         super({
             key: CST.SCENES.MENU
         })
     }
-    init(){
-
-    }
 
     preload(){
+        this.lastFired = 0;
+        this.isPlayable = false;
+        this.anims.create({
+            key: 'left',
+            frames: [ { key: CST.SPRITE.PLANE, frame: 0 } ],
+            frameRate: 24,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: CST.SPRITE.PLANE, frame: 1 } ],
+            frameRate: 24
+        });
+        
+        this.anims.create({
+            key: 'right',
+            frames: [ { key: CST.SPRITE.PLANE, frame: 2 } ],
+            frameRate: 24,
+            repeat: -1
+        });
+    }
 
+    update(time: number, delta: number){
+        if (this.isPlayable) {
+            if (this.cursors.left.isDown)
+                {
+                    if (this.player.x > this.game.renderer.width / 4)
+                        this.player.setVelocityX(-160);
+                    else
+                        this.player.setVelocityX(-((160 + this.player.x - this.game.renderer.width / 4) % 161));
+        
+                    this.player.anims.play('left');
+                }
+                else if (this.cursors.right.isDown)
+                {
+                    if (this.player.x < this.game.renderer.width / 4)
+                        this.player.setVelocityX(160);
+                    else
+                        this.player.setVelocityX(((160 + this.game.renderer.width / 4 - this.player.x) % 161));
+        
+                    this.player.anims.play('right', true);
+                }
+                else {
+                    this.player.setVelocityX(0);
+        
+                    this.player.anims.play('turn');
+                }
+                if (this.cursors.up.isDown)
+                {
+                    if (this.player.y > this.game.renderer.height * 3 / 4)
+                        this.player.setVelocityY(-160);
+                    else
+                        this.player.setVelocityY(-((160 + this.player.y - this.game.renderer.height * 3 / 4) % 161));
+        
+                    this.player.anims.play('turn');
+                }
+                else if (this.cursors.down.isDown)
+                {
+                    if (this.player.y < this.game.renderer.height * 3 / 4)
+                        this.player.setVelocityY(160);
+                    else
+                        this.player.setVelocityY(((160 + this.game.renderer.height * 3 / 4 - this.player.y) % 80));
+        
+                    this.player.anims.play('turn');
+                }
+                else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+                    this.player.setVelocityY(0);
+        
+                    this.player.anims.play('turn');
+                }
+        
+                if (!(this.cursors.up.isDown || this.cursors.down.isDown)){
+                    this.player.setVelocityY(0);
+                }
+        
+                if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown))
+                {
+                    this.player.setVelocityX(0);
+                    this.player.setVelocityY(0);
+        
+                    this.player.anims.play('turn');
+                }
+
+                if (this.cursors.space.isDown && time > this.lastFired) {
+                    this.lastFired = time + 200;
+                    const bullet = this.bullets.create(this.player.x, this.player.y - 10, CST.IMAGES.BULLET)
+                    .setDepth(9).setScale(0.25);
+                    bullet.setVelocityY(-600);
+                    bullet.setAcceleration(0, -50);
+                }
+        }
     }
 
     create(){
+        this.bullets = this.physics.add.group();
+        this.cursors = this.input.keyboard.createCursorKeys();
         this.sound.pauseOnBlur = false;
         this.sound.play(CST.AUDIO.MAINIMENU, {
             loop: true
+        });
+
+        this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST.SPRITE.PLANE)
+        .setScale(1.5).setDepth(10);
+        this.player.anims.play('turn');
+        this.tweens.add({
+            targets: this.player,
+            y: this.game.renderer.height * 3 / 4,
+            duration: 1000,
+            ease: 'Power1'
         });
 
         const mainText = this.make.text({
@@ -30,6 +135,46 @@ export class MenuScene extends Phaser.Scene{
                 color: '#000000'
             }
         }).setDepth(1);
+
+        const helpText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: 50,
+            text: 'Press \'H\' to show control keys and to toggle learning mode',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '18px',
+                color: '#000000',
+                wordWrap: { width: 200 }
+            }
+        }).setDepth(1);
+
+        const hintsText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: 150,
+            text: 'Use arrows to navigate your ship, space to shoot',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '18px',
+                color: '#000000',
+                wordWrap: { width: 200 }
+            }
+        }).setDepth(1).setVisible(false);
+
+        this.input.keyboard.on('keydown-H', () => {
+            hintsText.setVisible(!hintsText.visible);
+            this.isPlayable = !this.isPlayable;
+            if (this.isPlayable === false) {
+                this.player.anims.play('turn');
+                this.player.setVelocity(0);
+                this.tweens.add({
+                    targets: this.player,
+                    y: this.game.renderer.height * 3 / 4,
+                    x: this.game.renderer.width / 4,
+                    duration: 1500,
+                    ease: 'Power1'
+                });
+            }
+       });
 
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
         const background = this.add.image(0, -100, CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
@@ -60,11 +205,26 @@ export class MenuScene extends Phaser.Scene{
                 },
                 loop: false
             });
+            [playImg, playText, optionsImg, optionsText, creditsImg, creditsText, mainText, hintsText, helpText].map((elem) => {
+                this.tweens.add({
+                    targets: elem,
+                    y: elem.y + 150,
+                    alpha: { from: 1, to: 0 },
+                    duration: 1500,
+                    ease: 'Power1'
+                });
+            })
+            this.tweens.add({
+                targets: this.player,
+                y: 0,
+                duration: 2000,
+                ease: 'Power1'
+            });
             this.time.addEvent({
-                delay: 200,
+                delay: 1500,
                 callback: ()=>{
                     this.sound.stopAll();
-                    this.scene.start(CST.SCENES.GAME);
+                    this.scene.start(CST.SCENES.CHOOSELEVEL);
                 },
                 loop: false
             });

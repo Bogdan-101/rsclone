@@ -2,7 +2,8 @@ export const CST = {
     SCENES: {
         LOAD: "LOAD",
         MENU: "MENU",
-        GAME: "GAME"
+        GAME: "GAME",
+        CHOOSELEVEL: "CHOOSELEVEL"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -23,6 +24,7 @@ export const CST = {
         PLANE: "PlaneSprites.png",
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
-        ENEMYATLAS: "EnemyPlaneAtlas.png"
+        ENEMYATLAS: "EnemyPlaneAtlas.png",
+        LEVELBUTTON: "LevelButton.png"
     }
 }

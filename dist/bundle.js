@@ -15,7 +15,8 @@ exports.CST = {
     SCENES: {
         LOAD: "LOAD",
         MENU: "MENU",
-        GAME: "GAME"
+        GAME: "GAME",
+        CHOOSELEVEL: "CHOOSELEVEL"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -36,7 +37,8 @@ exports.CST = {
         PLANE: "PlaneSprites.png",
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
-        ENEMYATLAS: "EnemyPlaneAtlas.png"
+        ENEMYATLAS: "EnemyPlaneAtlas.png",
+        LEVELBUTTON: "LevelButton.png"
     }
 };
 
@@ -55,11 +57,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var GameScene_1 = __webpack_require__(/*! ./scenes/GameScene */ "./src/scenes/GameScene.ts");
 var LoadScene_1 = __webpack_require__(/*! ./scenes/LoadScene */ "./src/scenes/LoadScene.ts");
 var MenuScene_1 = __webpack_require__(/*! ./scenes/MenuScene */ "./src/scenes/MenuScene.ts");
+var ChooseScene_1 = __webpack_require__(/*! ./scenes/ChooseScene */ "./src/scenes/ChooseScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene
     ],
     render: {
         pixelArt: true
@@ -123,8 +126,10 @@ var Enemy = /** @class */ (function (_super) {
         var yMoving = Phaser.Math.FloatBetween(0, 100);
         var xMoving = Phaser.Math.FloatBetween(-100, 100);
         var chance = Phaser.Math.Between(0, 1);
-        if (this.y + yMoving > 250)
+        if (this.y + yMoving > 250 || this.y + yMoving < 0)
             yMoving = -yMoving;
+        if (this.x + xMoving > 700 || this.x + xMoving < 100)
+            xMoving = -xMoving;
         if (chance === 1) {
             if (xMoving > 0)
                 this.anims.play('moveRight');
@@ -194,6 +199,138 @@ exports.default = Enemy;
 
 /***/ }),
 
+/***/ "./src/scenes/ChooseScene.ts":
+/*!***********************************!*\
+  !*** ./src/scenes/ChooseScene.ts ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ChooseScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var ChooseScene = /** @class */ (function (_super) {
+    __extends(ChooseScene, _super);
+    function ChooseScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.CHOOSELEVEL
+        }) || this;
+    }
+    ChooseScene.prototype.init = function () {
+    };
+    ChooseScene.prototype.preload = function () {
+        var _this = this;
+        this.anims.create({
+            key: 'ButtonHighlighted',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('levelButtons', {
+                prefix: 'Button',
+                suffix: '.png',
+                start: 0,
+                end: 0,
+                zeroPad: 1
+            })
+        });
+        this.anims.create({
+            key: 'ButtonSteady',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('levelButtons', {
+                prefix: 'Button',
+                suffix: '.png',
+                start: 1,
+                end: 1,
+                zeroPad: 1
+            })
+        });
+        var level1 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2 - 100, CST_1.CST.SPRITE.LEVELBUTTON).setOrigin(0);
+        level1.anims.play('ButtonSteady');
+        level1.setInteractive();
+        level1.on('pointerover', function () {
+            level1.anims.play('ButtonHighlighted');
+        });
+        level1.on('pointerout', function () {
+            level1.anims.play('ButtonSteady');
+        });
+        level1.on('pointerup', function () {
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    _this.scene.start(CST_1.CST.SCENES.GAME);
+                },
+                loop: false
+            });
+        });
+        var level2 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2, CST_1.CST.SPRITE.LEVELBUTTON).setOrigin(0);
+        level2.anims.play('ButtonSteady');
+        level2.setInteractive();
+        level2.on('pointerover', function () {
+            level2.anims.play('ButtonHighlighted');
+        });
+        level2.on('pointerout', function () {
+            level2.anims.play('ButtonSteady');
+        });
+        var level3 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2 + 100, CST_1.CST.SPRITE.LEVELBUTTON).setOrigin(0);
+        level3.anims.play('ButtonSteady');
+        level3.setInteractive();
+        level3.on('pointerover', function () {
+            level3.anims.play('ButtonHighlighted');
+        });
+        level3.on('pointerout', function () {
+            level3.anims.play('ButtonSteady');
+        });
+        var BackImg = this.add.image(this.game.renderer.width / 3, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.BUTTON)
+            .setOrigin(0).setScale(3);
+        var BackText = this.make.text({
+            x: this.game.renderer.width / 3 + 73,
+            y: this.game.renderer.height / 2 + 242,
+            text: 'Back',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '20px',
+                color: '#000000'
+            }
+        });
+        BackImg.setInteractive();
+        BackImg.on('pointerup', function () {
+            BackImg.setScale(3.25);
+            BackText.setScale(1.08333);
+            BackText.setX(BackText.x + 5);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    BackImg.setScale(3);
+                    BackText.setScale(1);
+                    BackText.setX(BackText.x - 5);
+                    _this.scene.start(CST_1.CST.SCENES.MENU);
+                },
+                loop: false
+            });
+        });
+    };
+    ChooseScene.prototype.create = function () {
+    };
+    ChooseScene.prototype.update = function () {
+    };
+    return ChooseScene;
+}(Phaser.Scene));
+exports.ChooseScene = ChooseScene;
+
+
+/***/ }),
+
 /***/ "./src/scenes/GameScene.ts":
 /*!*********************************!*\
   !*** ./src/scenes/GameScene.ts ***!
@@ -233,23 +370,6 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.preload = function () {
         var _this = this;
         this.lastFired = 0;
-        this.anims.create({
-            key: 'left',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 0 }],
-            frameRate: 24,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'turn',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 1 }],
-            frameRate: 24
-        });
-        this.anims.create({
-            key: 'right',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 2 }],
-            frameRate: 24,
-            repeat: -1
-        });
         this.anims.create({
             key: 'explode',
             frameRate: 10,
@@ -570,6 +690,7 @@ var LoadScene = /** @class */ (function (_super) {
         this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
+        this.load.atlas('levelButtons', '../../assets/sprites/LevelButton.png', '../../assets/sprites/LevelButton.json');
         var loadingBar = this.add.graphics({
             fillStyle: {
                 color: 0xffffff,
@@ -757,6 +878,7 @@ var LoadScene = /** @class */ (function (_super) {
     };
     LoadScene.prototype.create = function () {
         var _this = this;
+        this.scene.start(CST_1.CST.SCENES.MENU);
         this.time.addEvent({
             delay: 9500,
             callback: function () {
@@ -802,15 +924,98 @@ var MenuScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.MENU
         }) || this;
     }
-    MenuScene.prototype.init = function () {
-    };
     MenuScene.prototype.preload = function () {
+        this.lastFired = 0;
+        this.isPlayable = false;
+        this.anims.create({
+            key: 'left',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 0 }],
+            frameRate: 24,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 1 }],
+            frameRate: 24
+        });
+        this.anims.create({
+            key: 'right',
+            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 2 }],
+            frameRate: 24,
+            repeat: -1
+        });
+    };
+    MenuScene.prototype.update = function (time, delta) {
+        if (this.isPlayable) {
+            if (this.cursors.left.isDown) {
+                if (this.player.x > this.game.renderer.width / 4)
+                    this.player.setVelocityX(-160);
+                else
+                    this.player.setVelocityX(-((160 + this.player.x - this.game.renderer.width / 4) % 161));
+                this.player.anims.play('left');
+            }
+            else if (this.cursors.right.isDown) {
+                if (this.player.x < this.game.renderer.width / 4)
+                    this.player.setVelocityX(160);
+                else
+                    this.player.setVelocityX(((160 + this.game.renderer.width / 4 - this.player.x) % 161));
+                this.player.anims.play('right', true);
+            }
+            else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('turn');
+            }
+            if (this.cursors.up.isDown) {
+                if (this.player.y > this.game.renderer.height * 3 / 4)
+                    this.player.setVelocityY(-160);
+                else
+                    this.player.setVelocityY(-((160 + this.player.y - this.game.renderer.height * 3 / 4) % 161));
+                this.player.anims.play('turn');
+            }
+            else if (this.cursors.down.isDown) {
+                if (this.player.y < this.game.renderer.height * 3 / 4)
+                    this.player.setVelocityY(160);
+                else
+                    this.player.setVelocityY(((160 + this.game.renderer.height * 3 / 4 - this.player.y) % 80));
+                this.player.anims.play('turn');
+            }
+            else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            if (!(this.cursors.up.isDown || this.cursors.down.isDown)) {
+                this.player.setVelocityY(0);
+            }
+            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown)) {
+                this.player.setVelocityX(0);
+                this.player.setVelocityY(0);
+                this.player.anims.play('turn');
+            }
+            if (this.cursors.space.isDown && time > this.lastFired) {
+                this.lastFired = time + 200;
+                var bullet = this.bullets.create(this.player.x, this.player.y - 10, CST_1.CST.IMAGES.BULLET)
+                    .setDepth(9).setScale(0.25);
+                bullet.setVelocityY(-600);
+                bullet.setAcceleration(0, -50);
+            }
+        }
     };
     MenuScene.prototype.create = function () {
         var _this = this;
+        this.bullets = this.physics.add.group();
+        this.cursors = this.input.keyboard.createCursorKeys();
         this.sound.pauseOnBlur = false;
         this.sound.play(CST_1.CST.AUDIO.MAINIMENU, {
             loop: true
+        });
+        this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST_1.CST.SPRITE.PLANE)
+            .setScale(1.5).setDepth(10);
+        this.player.anims.play('turn');
+        this.tweens.add({
+            targets: this.player,
+            y: this.game.renderer.height * 3 / 4,
+            duration: 1000,
+            ease: 'Power1'
         });
         var mainText = this.make.text({
             x: this.game.renderer.width / 2 - 200,
@@ -822,6 +1027,43 @@ var MenuScene = /** @class */ (function (_super) {
                 color: '#000000'
             }
         }).setDepth(1);
+        var helpText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: 50,
+            text: 'Press \'H\' to show control keys and to toggle learning mode',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '18px',
+                color: '#000000',
+                wordWrap: { width: 200 }
+            }
+        }).setDepth(1);
+        var hintsText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: 150,
+            text: 'Use arrows to navigate your ship, space to shoot',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '18px',
+                color: '#000000',
+                wordWrap: { width: 200 }
+            }
+        }).setDepth(1).setVisible(false);
+        this.input.keyboard.on('keydown-H', function () {
+            hintsText.setVisible(!hintsText.visible);
+            _this.isPlayable = !_this.isPlayable;
+            if (_this.isPlayable === false) {
+                _this.player.anims.play('turn');
+                _this.player.setVelocity(0);
+                _this.tweens.add({
+                    targets: _this.player,
+                    y: _this.game.renderer.height * 3 / 4,
+                    x: _this.game.renderer.width / 4,
+                    duration: 1500,
+                    ease: 'Power1'
+                });
+            }
+        });
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
         var background = this.add.image(0, -100, CST_1.CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
         var playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
@@ -849,11 +1091,26 @@ var MenuScene = /** @class */ (function (_super) {
                 },
                 loop: false
             });
+            [playImg, playText, optionsImg, optionsText, creditsImg, creditsText, mainText, hintsText, helpText].map(function (elem) {
+                _this.tweens.add({
+                    targets: elem,
+                    y: elem.y + 150,
+                    alpha: { from: 1, to: 0 },
+                    duration: 1500,
+                    ease: 'Power1'
+                });
+            });
+            _this.tweens.add({
+                targets: _this.player,
+                y: 0,
+                duration: 2000,
+                ease: 'Power1'
+            });
             _this.time.addEvent({
-                delay: 200,
+                delay: 1500,
                 callback: function () {
                     _this.sound.stopAll();
-                    _this.scene.start(CST_1.CST.SCENES.GAME);
+                    _this.scene.start(CST_1.CST.SCENES.CHOOSELEVEL);
                 },
                 loop: false
             });

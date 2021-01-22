@@ -32,11 +32,14 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 
     CreateMovement(): void {
         let yMoving = Phaser.Math.FloatBetween(0, 100);
-        const xMoving = Phaser.Math.FloatBetween(-100, 100);
+        let xMoving = Phaser.Math.FloatBetween(-100, 100);
         const chance = Phaser.Math.Between(0, 1);
 
-        if (this.y + yMoving > 250)
+        if (this.y + yMoving > 250 || this.y + yMoving < 0)
             yMoving = -yMoving;
+
+        if (this.x + xMoving > 700 || this.x + xMoving < 100)
+            xMoving = -xMoving;
 
         if (chance === 1){
             if (xMoving > 0)

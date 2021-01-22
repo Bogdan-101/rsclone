@@ -22,25 +22,6 @@ export class GameScene extends Phaser.Scene{
 
     preload(){
         this.lastFired = 0;
-        this.anims.create({
-            key: 'left',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 0 } ],
-            frameRate: 24,
-            repeat: -1
-        });
-        
-        this.anims.create({
-            key: 'turn',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 1 } ],
-            frameRate: 24
-        });
-        
-        this.anims.create({
-            key: 'right',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 2 } ],
-            frameRate: 24,
-            repeat: -1
-        });
 
         this.anims.create({
             key: 'explode',
