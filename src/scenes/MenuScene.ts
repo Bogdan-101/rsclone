@@ -15,28 +15,9 @@ export class MenuScene extends Phaser.Scene{
     preload(){
         this.lastFired = 0;
         this.isPlayable = false;
-        this.anims.create({
-            key: 'left',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 0 } ],
-            frameRate: 24,
-            repeat: -1
-        });
-        
-        this.anims.create({
-            key: 'turn',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 1 } ],
-            frameRate: 24
-        });
-        
-        this.anims.create({
-            key: 'right',
-            frames: [ { key: CST.SPRITE.PLANE, frame: 2 } ],
-            frameRate: 24,
-            repeat: -1
-        });
     }
 
-    update(time: number, delta: number){
+    update(time: number){
         if (this.isPlayable) {
             if (this.cursors.left.isDown)
                 {
@@ -44,7 +25,7 @@ export class MenuScene extends Phaser.Scene{
                         this.player.setVelocityX(-160);
                     else
                         this.player.setVelocityX(-((160 + this.player.x - this.game.renderer.width / 4) % 161));
-        
+
                     this.player.anims.play('left');
                 }
                 else if (this.cursors.right.isDown)
@@ -53,21 +34,21 @@ export class MenuScene extends Phaser.Scene{
                         this.player.setVelocityX(160);
                     else
                         this.player.setVelocityX(((160 + this.game.renderer.width / 4 - this.player.x) % 161));
-        
+
                     this.player.anims.play('right', true);
                 }
                 else {
                     this.player.setVelocityX(0);
-        
+
                     this.player.anims.play('turn');
                 }
-                if (this.cursors.up.isDown)
+            if (this.cursors.up.isDown)
                 {
                     if (this.player.y > this.game.renderer.height * 3 / 4)
                         this.player.setVelocityY(-160);
                     else
                         this.player.setVelocityY(-((160 + this.player.y - this.game.renderer.height * 3 / 4) % 161));
-        
+
                     this.player.anims.play('turn');
                 }
                 else if (this.cursors.down.isDown)
@@ -76,28 +57,28 @@ export class MenuScene extends Phaser.Scene{
                         this.player.setVelocityY(160);
                     else
                         this.player.setVelocityY(((160 + this.game.renderer.height * 3 / 4 - this.player.y) % 80));
-        
+
                     this.player.anims.play('turn');
                 }
                 else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
                     this.player.setVelocityY(0);
-        
-                    this.player.anims.play('turn');
-                }
-        
-                if (!(this.cursors.up.isDown || this.cursors.down.isDown)){
-                    this.player.setVelocityY(0);
-                }
-        
-                if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown))
-                {
-                    this.player.setVelocityX(0);
-                    this.player.setVelocityY(0);
-        
+
                     this.player.anims.play('turn');
                 }
 
-                if (this.cursors.space.isDown && time > this.lastFired) {
+            if (!(this.cursors.up.isDown || this.cursors.down.isDown)){
+                    this.player.setVelocityY(0);
+                }
+
+            if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown))
+                {
+                    this.player.setVelocityX(0);
+                    this.player.setVelocityY(0);
+
+                    this.player.anims.play('turn');
+                }
+
+            if (this.cursors.space.isDown && time > this.lastFired) {
                     this.lastFired = time + 200;
                     const bullet = this.bullets.create(this.player.x, this.player.y - 10, CST.IMAGES.BULLET)
                     .setDepth(9).setScale(0.25);
@@ -108,9 +89,36 @@ export class MenuScene extends Phaser.Scene{
     }
 
     create(){
+        console.log('now',  CST.STATE.PLANE);
+        if (this.anims.get('turn')) {
+            this.anims.get('left').destroy();
+            this.anims.get('turn').destroy();
+            this.anims.get('right').destroy();
+        }
+        this.anims.create({
+            key: 'left',
+            frames: [ { key: CST.STATE.PLANE, frame: 0 } ],
+            frameRate: 24,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: CST.STATE.PLANE, frame: 1 } ],
+            frameRate: 24
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: [ { key: CST.STATE.PLANE, frame: 2 } ],
+            frameRate: 24,
+            repeat: -1
+        });
+
         this.bullets = this.physics.add.group();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.sound.pauseOnBlur = false;
+        this.sound.volume = 1;
         this.sound.play(CST.AUDIO.MAINIMENU, {
             loop: true
         });
@@ -198,7 +206,7 @@ export class MenuScene extends Phaser.Scene{
             playText.setX(playText.x + 5);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     playImg.setScale(3);
                     playText.setScale(1);
                     playText.setX(playText.x - 5);
@@ -222,7 +230,7 @@ export class MenuScene extends Phaser.Scene{
             });
             this.time.addEvent({
                 delay: 1500,
-                callback: ()=>{
+                callback: () => {
                     this.sound.stopAll();
                     this.scene.start(CST.SCENES.CHOOSELEVEL);
                 },
@@ -230,7 +238,8 @@ export class MenuScene extends Phaser.Scene{
             });
         });
 
-        const optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST.IMAGES.BUTTON)
+            .setOrigin(0).setScale(3);
         const optionsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
             y: this.game.renderer.height / 2 + 142,
@@ -245,14 +254,19 @@ export class MenuScene extends Phaser.Scene{
 
         optionsImg.on('pointerup', () => {
             optionsImg.setScale(3.25);
-            optionsText.setScale(1.08333);
             optionsText.setX(optionsText.x + 5);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     optionsImg.setScale(3);
-                    optionsText.setScale(1);
                     optionsText.setX(optionsText.x - 5);
+                    this.time.addEvent({
+                        delay: 300,
+                        callback: () => {
+                            this.scene.start(CST.SCENES.OPTIONSSCENE);
+                        },
+                        loop: false
+                    });
                 },
                 loop: false
             });
@@ -277,7 +291,7 @@ export class MenuScene extends Phaser.Scene{
             creditsText.setX(creditsText.x + 5);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     creditsImg.setScale(3);
                     creditsText.setScale(1);
                     creditsText.setX(creditsText.x - 5);
@@ -285,7 +299,7 @@ export class MenuScene extends Phaser.Scene{
                 loop: false
             });
         });
-        
+
         this.tweens.timeline({
             tweens: [{
                 targets: [background, mainText, playImg, playText, optionsImg, optionsText, creditsImg, creditsText],

@@ -8,23 +8,23 @@ export class LoadScene extends Phaser.Scene{
     loadImages(){
         this.load.setPath('./assets/images/');
 
-        for(let prop in CST.IMAGES){
-            //@ts-ignore
+        for (const prop in CST.IMAGES){
+            // @ts-ignore
             this.load.image(CST.IMAGES[prop], CST.IMAGES[prop]);
         }
     }
     loadSounds(){
         this.load.setPath('./assets/sounds');
 
-        for(let prop in CST.AUDIO){
-            //@ts-ignore
+        for (const prop in CST.AUDIO){
+            // @ts-ignore
             this.load.audio(CST.AUDIO[prop], CST.AUDIO[prop]);
         }
     }
     loadSprites(frameConfig?: Phaser.Types.Loader.FileTypes.ImageFrameConfig){
-        
-        for(let prop in CST.SPRITE){
-            //@ts-ignore
+
+        for (const prop in CST.SPRITE){
+            // @ts-ignore
             this.load.spritesheet(CST.SPRITE[prop], CST.SPRITE[prop], frameConfig);
         }
     }
@@ -36,11 +36,32 @@ export class LoadScene extends Phaser.Scene{
             frameHeight: 40,
             frameWidth: 28
         })
+
+        this.load.spritesheet(CST.SPRITE.PLANE2, CST.SPRITE.PLANE2, {
+            frameHeight: 40,
+            frameWidth: 28
+        })
+
+        this.load.spritesheet(CST.SPRITE.PLANE3, CST.SPRITE.PLANE3, {
+            frameHeight: 40,
+            frameWidth: 28
+        })
+
+        this.load.spritesheet(CST.SPRITE.PLANE4, CST.SPRITE.PLANE4, {
+            frameHeight: 40,
+            frameWidth: 28
+        })
+
+        this.load.spritesheet(CST.SPRITE.PLANE5, CST.SPRITE.PLANE5, {
+            frameHeight: 40,
+            frameWidth: 28
+        })
+
         this.load.spritesheet(CST.SPRITE.ENEMY, CST.SPRITE.ENEMY, {
             frameHeight: 24,
             frameWidth: 16
         })
-        
+
         this.load.atlas('explosion2', '../../assets/sprites/explosion2.png', '../../assets/sprites/explosion2.json');
         this.load.atlas('explosion1', '../../assets/sprites/explosion1.png', '../../assets/sprites/explosion1.json');
         this.load.atlas('enemyPlane', '../../assets/sprites/EnemyPlaneAtlas.png', '../../assets/sprites/EnemyPlaneAtlas.json');
@@ -103,7 +124,7 @@ export class LoadScene extends Phaser.Scene{
             50
         );
 
-        this.load.on('progress', (percent :number) => {
+        this.load.on('progress', (percent : number) => {
             loadingBar.clear();
             loadingBar.fillRect(
                 this.game.renderer.width / 2 - 150,
@@ -114,7 +135,7 @@ export class LoadScene extends Phaser.Scene{
             percentText.setText((percent * 100).toString() + '%');
         })
 
-        this.load.on('fileprogress', (file :Phaser.Loader.File) => {
+        this.load.on('fileprogress', (file : Phaser.Loader.File) => {
             assetText.setText('Loading asset: ' + file.key);
         })
 
@@ -213,10 +234,10 @@ export class LoadScene extends Phaser.Scene{
                     duration: 500
                 }]
             });
-            
+
             this.time.addEvent({
                 delay: 3000,
-                callback: ()=>{
+                callback: () => {
                     const img = this.add.image(75, 0, CST.IMAGES.LOGO).setOrigin(0).setScale(0.65).setAlpha(0);
                     this.tweens.timeline({
                         tweens: [{
@@ -228,7 +249,7 @@ export class LoadScene extends Phaser.Scene{
                     });
                     this.time.addEvent({
                         delay: 2000,
-                        callback: ()=> {
+                        callback: () => {
                             this.tweens.timeline({
                                 tweens: [{
                                     targets: [img, logoLine1, logoLine2, logoLine3, logoLine4],
@@ -239,7 +260,7 @@ export class LoadScene extends Phaser.Scene{
                             });
                             this.time.addEvent({
                                 delay: 2000,
-                                callback: ()=> {
+                                callback: () => {
                                     this.tweens.timeline({
                                         tweens: [{
                                             targets: logoLine,
@@ -265,7 +286,7 @@ export class LoadScene extends Phaser.Scene{
         this.scene.start(CST.SCENES.MENU);
         this.time.addEvent({
             delay: 9500,
-            callback: ()=>{
+            callback: () => {
                 this.scene.start(CST.SCENES.MENU)
             },
             loop: false

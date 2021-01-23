@@ -9,9 +9,7 @@ export class GameScene extends Phaser.Scene{
             key: CST.SCENES.GAME
         })
     }
-    init(){
-    }
-    
+
     private player!: Hero;
     private background!: Phaser.GameObjects.TileSprite;
     private lastSpawned!: number;
@@ -41,7 +39,7 @@ export class GameScene extends Phaser.Scene{
                 zeroPad: 1
             })
         });
-        
+
         this.anims.create({
             key: 'moveLeft',
             frameRate: 10,
@@ -96,17 +94,17 @@ export class GameScene extends Phaser.Scene{
             duration: 1000,
             ease: 'Power1'
         });
-        
+
     }
 
-    update(time: number, delta: number){
-        this.player.update(time, delta);
+    update(time: number){
+        this.player.update(time);
         if (typeof(this.lastSpawned) === 'undefined')
             this.lastSpawned = time + 5000;
         if (this.player.health !== 0) {
             this.background.tilePositionY -= 0.5;
-    
-            if (time > this.lastSpawned) {
+
+            if (time > this.lastSpawned && this.player.health !== 0) {
                 this.lastSpawned = time + 1000;
                 const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
                 enemy.init(this.player.player, this);
@@ -116,15 +114,15 @@ export class GameScene extends Phaser.Scene{
                     duration: 1000,
                     ease: 'Power1'
                 });
-                this.physics.add.collider(this.player.bullets, enemy, ()=>{
+                this.physics.add.collider(this.player.bullets, enemy, () => {
                     enemy.Die();
-                    //@ts-ignore
+                    // @ts-ignore
                 }, null, this);
                 enemy.setTarget(this.player.player!)
             }
         }
     }
-    
+
     Hit(s: any): void{
         this.registry.set('health', this.player.health);
         if (s)
@@ -136,9 +134,12 @@ export class GameScene extends Phaser.Scene{
         this.scene.setVisible(false, CST.SCENES.HUDSCENE);
         this.physics.pause();
         this.player.player.setTint(0xff5555);
-        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1).setScale(2);
-        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST.IMAGES.GAMEOVER).setDepth(5);
-        const restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST.IMAGES.RESTART).setDepth(5).setScale(2.5);
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
+            .setOrigin(0).setDepth(1).setScale(2);
+        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST.IMAGES.GAMEOVER)
+            .setDepth(5);
+        const restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST.IMAGES.RESTART)
+            .setDepth(5).setScale(2.5);
 
         restartButton.setInteractive();
 
@@ -146,14 +147,14 @@ export class GameScene extends Phaser.Scene{
             restartButton.setScale(2.75);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     restartButton.setScale(2.5);
                 },
                 loop: false
             });
             this.time.addEvent({
                 delay: 200,
-                callback: ()=>{
+                callback: () => {
                     this.sound.stopAll();
                     this.scene.stop();
                     this.scene.start(CST.SCENES.GAME);
@@ -164,7 +165,8 @@ export class GameScene extends Phaser.Scene{
             });
         });
 
-        const homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST.IMAGES.HOME).setDepth(6).setScale(2.5);
+        const homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST.IMAGES.HOME)
+            .setDepth(6).setScale(2.5);
 
         homeButton.setInteractive();
 
@@ -172,14 +174,14 @@ export class GameScene extends Phaser.Scene{
             homeButton.setScale(2.75);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     homeButton.setScale(2.5);
                 },
                 loop: false
             });
             this.time.addEvent({
                 delay: 200,
-                callback: ()=>{
+                callback: () => {
                     this.sound.stopAll();
                     this.scene.start(CST.SCENES.MENU);
                 },
@@ -191,7 +193,7 @@ export class GameScene extends Phaser.Scene{
         for (let i = 0; i < 20; i += 1) {
             this.time.addEvent({
                 delay: 250 * i,
-                callback: ()=>{
+                callback: () => {
                     const expl: Phaser.GameObjects.Sprite = this.add.sprite(
                         this.player.player.x + Phaser.Math.Between(-20, 20),
                         this.player.player.y + Phaser.Math.Between(-20, 20),
@@ -200,7 +202,7 @@ export class GameScene extends Phaser.Scene{
                     expl.play('explode');
                     this.time.addEvent({
                         delay: 450,
-                        callback: ()=>{
+                        callback: () => {
                             expl.destroy();
                         },
                         loop: false
@@ -216,13 +218,13 @@ export class GameScene extends Phaser.Scene{
 
     create(){
         this.scene.launch(CST.SCENES.HUDSCENE);
-        this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height -200, CST.SPRITE.PLANE);
+        this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST.STATE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy,
 			runChildUpdate: true
         })
-        
-        for (let i=0; i < 5; i += 1) {
+
+        for (let i = 0; i < 5; i += 1) {
             const enemy = this.enemies.get(Phaser.Math.Between(100, 800), -50, CST.SPRITE.ENEMYATLAS);
             enemy.init(this.player.player, this);
             this.tweens.add({
@@ -231,9 +233,10 @@ export class GameScene extends Phaser.Scene{
                 duration: 1000,
                 ease: 'Power1'
             });
-            this.physics.add.collider(this.player.bullets, enemy, ()=>{
+            this.physics.add.collider(this.player.bullets, enemy, (f) => {
                 enemy.Die();
-                //@ts-ignore
+                f.destroy();
+                // @ts-ignore
             }, null, this);
         }
 
@@ -242,6 +245,7 @@ export class GameScene extends Phaser.Scene{
 			enemy.setTarget(this.player.player!)
 		})
 
-        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST.IMAGES.STAGE).setDepth(-3).setOrigin(0).setScale(3.125);
+        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST.IMAGES.STAGE)
+            .setDepth(-3).setOrigin(0).setScale(3.125);
     }
 }

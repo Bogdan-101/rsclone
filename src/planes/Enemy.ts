@@ -5,10 +5,10 @@ import Hero from '../planes/HeroPlane';
 export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 {
 	private target?: Phaser.GameObjects.Components.Transform;
-    private lastFired!: number;
-    private rockets: Phaser.Physics.Arcade.Group;
-    private isMoving: boolean;
-    private isAlive: boolean;
+ private lastFired!: number;
+ private rockets: Phaser.Physics.Arcade.Group;
+ private isMoving: boolean;
+ private isAlive: boolean;
 	constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
 	{
         super(scene, x, y, texture);
@@ -19,10 +19,10 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         this.isAlive = true;
 	}
 
-    init(player: Hero, scene: Phaser.Scene){
-        //@ts-ignore
+ init(player: Hero, scene: Phaser.Scene){
+        // @ts-ignore
         this.scene.physics.add.collider(player, this.rockets, (f, s) => scene.Hit(s), null, this);
-        //@ts-ignore
+        // @ts-ignore
         this.scene.physics.add.collider(player, this, () => scene.Hit(), null, this);
 
         this.anims.create({
@@ -33,7 +33,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         });
     }
 
-    CreateMovement(): void {
+ CreateMovement(): void {
         let yMoving = Phaser.Math.FloatBetween(0, 100);
         let xMoving = Phaser.Math.FloatBetween(-100, 100);
         const chance = Phaser.Math.Between(0, 1);
@@ -62,7 +62,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 
         this.scene.time.addEvent({
             delay: 1250,
-            callback: ()=>{
+            callback: () => {
                 this.isMoving = false;
                 if (this.isAlive === true)
                     this.anims.play('enemyIdle');
@@ -71,14 +71,14 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         });
     }
 
-    Die() {
+ Die() {
         this.anims.play('enemyDie');
         this.isAlive = false;
         const expl: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.x + Phaser.Math.Between(-5, 5), this.y + Phaser.Math.Between(-5, 5), 'explosion1');
-                    expl.play('enemyExplode');
-                    this.scene.time.addEvent({
+        expl.play('enemyExplode');
+        this.scene.time.addEvent({
                         delay: 250,
-                        callback: ()=>{
+                        callback: () => {
                             expl.destroy();
                         },
                         loop: false
@@ -91,7 +91,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 		this.target = target;
 	}
 
-	update(t: number, dt: number): void
+	update(t: number): void
 	{
 		if (!this.target)
 		{
@@ -103,14 +103,14 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 
 		const x = this.x
 		const y = this.y
-        
+
 		const rotation = Phaser.Math.Angle.Between(x, y, tx, ty)
-        this.setRotation(rotation - 1.575);
-        
-        if (t > this.lastFired || typeof(this.lastFired) === 'undefined') {
+  this.setRotation(rotation - 1.575);
+
+  if (t > this.lastFired || typeof(this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
             const rocket = this.rockets.create(x, y + 10, CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
-            rocket.setVelocity(-Math.sin(rocket.rotation)*200, Math.cos(rocket.rotation)*200);
+            rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
             rocket.setAcceleration(0, 10);
             this.scene.time.addEvent({
                 loop: false,
@@ -121,7 +121,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
             })
         }
 
-        if (!this.isMoving) {
+  if (!this.isMoving) {
             this.isMoving = true;
             this.CreateMovement();
         }

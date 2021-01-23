@@ -24,20 +24,20 @@ export default class Hero extends Phaser.GameObjects.Sprite
         this.player = this.scene.physics.add.sprite(
             this.x,
             this.scene.game.renderer.height + 100,
-            CST.SPRITE.PLANE
+            texture
         );
         this.player.setImmovable(true);
 
         this.scene.tweens.add({
             targets: this.player,
-            y: y,
+            y,
             duration: 1000,
             ease: 'Power1'
         });
 
         this.scene.time.addEvent({
             delay: 1250,
-            callback: ()=>{
+            callback: () => {
                 this.player.setCollideWorldBounds(true);
             },
             loop: false
@@ -52,17 +52,16 @@ export default class Hero extends Phaser.GameObjects.Sprite
             this.isDestroyable = false;
             this.scene.time.addEvent({
                 delay: 2000,
-                callback: ()=>{
+                callback: () => {
                     this.isDestroyable = true;
                     this.player.setAlpha(1);
-                    console.log('destructable');
                 },
                 loop: false
             });
             this.scene.tweens.add({
                 targets: this.player,
                 alpha: { from: 0, to: 1},
-                ease: 'Cubic.easeOut',  
+                ease: 'Cubic.easeOut',
                 duration: 400,
                 repeat: 5
               })
@@ -72,55 +71,55 @@ export default class Hero extends Phaser.GameObjects.Sprite
         return this.health;
     }
 
-    update(time: number, delta: number){
+    update(time: number){
             if (this.health !== 0) {
                 if (this.cursors.left.isDown)
                 {
                     this.player.setVelocityX(-160);
-        
+
                     this.player.anims.play('left');
                 }
                 else if (this.cursors.right.isDown)
                 {
                     this.player.setVelocityX(160);
-        
+
                     this.player.anims.play('right', true);
                 }
                 else {
                     this.player.setVelocityX(0);
-        
+
                     this.player.anims.play('turn');
                 }
                 if (this.cursors.up.isDown)
                 {
                     this.player.setVelocityY(-160);
-        
+
                     this.player.anims.play('turn');
                 }
                 else if (this.cursors.down.isDown)
                 {
                     this.player.setVelocityY(+160);
-        
+
                     this.player.anims.play('turn');
                 }
                 else if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
                     this.player.setVelocityY(0);
-        
+
                     this.player.anims.play('turn');
                 }
-        
+
                 if (!(this.cursors.up.isDown || this.cursors.down.isDown)){
                     this.player.setVelocityY(0);
                 }
-        
+
                 if (!(this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.right.isDown || this.cursors.left.isDown))
                 {
                     this.player.setVelocityX(0);
                     this.player.setVelocityY(0);
-        
+
                     this.player.anims.play('turn');
                 }
-        
+
                 if (this.cursors.space.isDown && time > this.lastFired) {
                     this.lastFired = time + 200;
                     const bullet = this.bullets.create(this.player.x, this.player.y - 10, CST.IMAGES.BULLET).setDepth(-2).setScale(0.25);

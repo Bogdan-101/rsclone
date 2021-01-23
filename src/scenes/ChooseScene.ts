@@ -7,10 +7,6 @@ export class ChooseScene extends Phaser.Scene{
         })
     }
 
-    init(){
-
-    }
-
     preload(){
         this.anims.create({
             key: 'ButtonHighlighted',
@@ -39,26 +35,26 @@ export class ChooseScene extends Phaser.Scene{
         const level1 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2 - 100, CST.SPRITE.LEVELBUTTON).setOrigin(0);
         level1.anims.play('ButtonSteady');
         level1.setInteractive();
-    
-        level1.on('pointerover', function(){
+
+        level1.on('pointerover', () => {
             level1.anims.play('ButtonHighlighted');
          });
-    
-        level1.on('pointerout', function(){
+
+        level1.on('pointerout', () => {
             level1.anims.play('ButtonSteady');
         });
 
         level1.on('pointerup', () => {
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     this.scene.start(CST.SCENES.GAME);
                 },
                 loop: false
             });
         });
 
-        const level1Text = this.make.text({
+        this.make.text({
             x: this.game.renderer.width / 3 + 75,
             y: this.game.renderer.height / 2 - 88,
             text: 'Jungle',
@@ -73,24 +69,46 @@ export class ChooseScene extends Phaser.Scene{
         level2.anims.play('ButtonSteady');
         level2.setInteractive();
 
-        level2.on('pointerover', function(){
+        level2.on('pointerover', () => {
             level2.anims.play('ButtonHighlighted');
          });
 
-        level2.on('pointerout', function(){
+        level2.on('pointerout', () => {
             level2.anims.play('ButtonSteady');
+        });
+
+        this.make.text({
+            x: this.game.renderer.width / 3 + 78,
+            y: this.game.renderer.height / 2 + 12,
+            text: 'Snow',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
         });
 
         const level3 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2 + 100, CST.SPRITE.LEVELBUTTON).setOrigin(0);
         level3.anims.play('ButtonSteady');
         level3.setInteractive();
 
-        level3.on('pointerover', function(){
+        level3.on('pointerover', () => {
             level3.anims.play('ButtonHighlighted');
          });
 
-        level3.on('pointerout', function(){
+        level3.on('pointerout', () => {
             level3.anims.play('ButtonSteady');
+        });
+
+        this.make.text({
+            x: this.game.renderer.width / 3 + 75,
+            y: this.game.renderer.height / 2 + 112,
+            text: 'Space',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
         });
 
         const BackImg = this.add.image(this.game.renderer.width / 3, this.game.renderer.height / 2 + 200, CST.IMAGES.BUTTON)
@@ -113,7 +131,7 @@ export class ChooseScene extends Phaser.Scene{
             BackText.setX(BackText.x + 5);
             this.time.addEvent({
                 delay: 100,
-                callback: ()=>{
+                callback: () => {
                     BackImg.setScale(3);
                     BackText.setScale(1);
                     BackText.setX(BackText.x - 5);
@@ -122,13 +140,5 @@ export class ChooseScene extends Phaser.Scene{
                 loop: false
             });
         });
-    }
-
-    create(){
-
-    }
-
-    update(){
-
     }
 }

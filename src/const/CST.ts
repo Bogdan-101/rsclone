@@ -1,10 +1,11 @@
-export const CST = {
+export let CST = {
     SCENES: {
         LOAD: "LOAD",
         MENU: "MENU",
         GAME: "GAME",
         CHOOSELEVEL: "CHOOSELEVEL",
-        HUDSCENE: "HUDSCENE"
+        HUDSCENE: "HUDSCENE",
+        OPTIONSSCENE: "OPTIONSSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -24,10 +25,18 @@ export const CST = {
     },
     SPRITE: {
         PLANE: "PlaneSprites.png",
+        PLANE2: "PlaneSprites2.png",
+        PLANE3: "PlaneSprites3.png",
+        PLANE4: "PlaneSprites4.png",
+        PLANE5: "PlaneSprites5.png",
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
         ENEMYATLAS: "EnemyPlaneAtlas.png",
         LEVELBUTTON: "LevelButton.png",
         HEART: "HealthHearts.png"
+    },
+    STATE: {
+        AUDIO: "1",
+        PLANE: "PlaneSprites.png"
     }
 }

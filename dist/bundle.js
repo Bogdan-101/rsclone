@@ -17,7 +17,8 @@ exports.CST = {
         MENU: "MENU",
         GAME: "GAME",
         CHOOSELEVEL: "CHOOSELEVEL",
-        HUDSCENE: "HUDSCENE"
+        HUDSCENE: "HUDSCENE",
+        OPTIONSSCENE: "OPTIONSSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -37,11 +38,19 @@ exports.CST = {
     },
     SPRITE: {
         PLANE: "PlaneSprites.png",
+        PLANE2: "PlaneSprites2.png",
+        PLANE3: "PlaneSprites3.png",
+        PLANE4: "PlaneSprites4.png",
+        PLANE5: "PlaneSprites5.png",
         ROCKET: "Rockets.png",
         ENEMY: "Enemy.png",
         ENEMYATLAS: "EnemyPlaneAtlas.png",
         LEVELBUTTON: "LevelButton.png",
         HEART: "HealthHearts.png"
+    },
+    STATE: {
+        AUDIO: "1",
+        PLANE: "PlaneSprites.png"
     }
 };
 
@@ -62,11 +71,12 @@ var LoadScene_1 = __webpack_require__(/*! ./scenes/LoadScene */ "./src/scenes/Lo
 var MenuScene_1 = __webpack_require__(/*! ./scenes/MenuScene */ "./src/scenes/MenuScene.ts");
 var ChooseScene_1 = __webpack_require__(/*! ./scenes/ChooseScene */ "./src/scenes/ChooseScene.ts");
 var HUDScene_1 = __webpack_require__(/*! ./scenes/HUDScene */ "./src/scenes/HUDScene.ts");
+var OptionsScene_1 = __webpack_require__(/*! ./scenes/OptionsScene */ "./src/scenes/OptionsScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene, OptionsScene_1.OptionsScene
     ],
     render: {
         pixelArt: true
@@ -116,9 +126,9 @@ var Enemy = /** @class */ (function (_super) {
         return _this;
     }
     Enemy.prototype.init = function (player, scene) {
-        //@ts-ignore
+        // @ts-ignore
         this.scene.physics.add.collider(player, this.rockets, function (f, s) { return scene.Hit(s); }, null, this);
-        //@ts-ignore
+        // @ts-ignore
         this.scene.physics.add.collider(player, this, function () { return scene.Hit(); }, null, this);
         this.anims.create({
             key: 'die',
@@ -178,7 +188,7 @@ var Enemy = /** @class */ (function (_super) {
     Enemy.prototype.setTarget = function (target) {
         this.target = target;
     };
-    Enemy.prototype.update = function (t, dt) {
+    Enemy.prototype.update = function (t) {
         if (!this.target) {
             return;
         }
@@ -248,7 +258,7 @@ var Hero = /** @class */ (function (_super) {
         _this.setDepth(-10);
         _this.cursors = _this.scene.input.keyboard.createCursorKeys();
         _this.isDestroyable = true;
-        _this.player = _this.scene.physics.add.sprite(_this.x, _this.scene.game.renderer.height + 100, CST_1.CST.SPRITE.PLANE);
+        _this.player = _this.scene.physics.add.sprite(_this.x, _this.scene.game.renderer.height + 100, texture);
         _this.player.setImmovable(true);
         _this.scene.tweens.add({
             targets: _this.player,
@@ -277,7 +287,6 @@ var Hero = /** @class */ (function (_super) {
                 callback: function () {
                     _this.isDestroyable = true;
                     _this.player.setAlpha(1);
-                    console.log('destructable');
                 },
                 loop: false
             });
@@ -292,7 +301,7 @@ var Hero = /** @class */ (function (_super) {
         // console.log(this.health);
         return this.health;
     };
-    Hero.prototype.update = function (time, delta) {
+    Hero.prototype.update = function (time) {
         if (this.health !== 0) {
             if (this.cursors.left.isDown) {
                 this.player.setVelocityX(-160);
@@ -378,8 +387,6 @@ var ChooseScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.CHOOSELEVEL
         }) || this;
     }
-    ChooseScene.prototype.init = function () {
-    };
     ChooseScene.prototype.preload = function () {
         var _this = this;
         this.anims.create({
@@ -422,7 +429,7 @@ var ChooseScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        var level1Text = this.make.text({
+        this.make.text({
             x: this.game.renderer.width / 3 + 75,
             y: this.game.renderer.height / 2 - 88,
             text: 'Jungle',
@@ -441,6 +448,16 @@ var ChooseScene = /** @class */ (function (_super) {
         level2.on('pointerout', function () {
             level2.anims.play('ButtonSteady');
         });
+        this.make.text({
+            x: this.game.renderer.width / 3 + 78,
+            y: this.game.renderer.height / 2 + 12,
+            text: 'Snow',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
         var level3 = this.physics.add.sprite(this.game.renderer.width / 3, this.game.renderer.height / 2 + 100, CST_1.CST.SPRITE.LEVELBUTTON).setOrigin(0);
         level3.anims.play('ButtonSteady');
         level3.setInteractive();
@@ -449,6 +466,16 @@ var ChooseScene = /** @class */ (function (_super) {
         });
         level3.on('pointerout', function () {
             level3.anims.play('ButtonSteady');
+        });
+        this.make.text({
+            x: this.game.renderer.width / 3 + 75,
+            y: this.game.renderer.height / 2 + 112,
+            text: 'Space',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
         });
         var BackImg = this.add.image(this.game.renderer.width / 3, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.BUTTON)
             .setOrigin(0).setScale(3);
@@ -478,10 +505,6 @@ var ChooseScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-    };
-    ChooseScene.prototype.create = function () {
-    };
-    ChooseScene.prototype.update = function () {
     };
     return ChooseScene;
 }(Phaser.Scene));
@@ -525,8 +548,6 @@ var GameScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.GAME
         }) || this;
     }
-    GameScene.prototype.init = function () {
-    };
     GameScene.prototype.preload = function () {
         this.anims.create({
             key: 'explode',
@@ -601,13 +622,13 @@ var GameScene = /** @class */ (function (_super) {
             ease: 'Power1'
         });
     };
-    GameScene.prototype.update = function (time, delta) {
-        this.player.update(time, delta);
+    GameScene.prototype.update = function (time) {
+        this.player.update(time);
         if (typeof (this.lastSpawned) === 'undefined')
             this.lastSpawned = time + 5000;
         if (this.player.health !== 0) {
             this.background.tilePositionY -= 0.5;
-            if (time > this.lastSpawned) {
+            if (time > this.lastSpawned && this.player.health !== 0) {
                 this.lastSpawned = time + 1000;
                 var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST_1.CST.SPRITE.ENEMYATLAS);
                 enemy_1.init(this.player.player, this);
@@ -619,7 +640,7 @@ var GameScene = /** @class */ (function (_super) {
                 });
                 this.physics.add.collider(this.player.bullets, enemy_1, function () {
                     enemy_1.Die();
-                    //@ts-ignore
+                    // @ts-ignore
                 }, null, this);
                 enemy_1.setTarget(this.player.player);
             }
@@ -637,9 +658,12 @@ var GameScene = /** @class */ (function (_super) {
         this.scene.setVisible(false, CST_1.CST.SCENES.HUDSCENE);
         this.physics.pause();
         this.player.player.setTint(0xff5555);
-        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6).setOrigin(0).setDepth(1).setScale(2);
-        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER).setDepth(5);
-        var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART).setDepth(5).setScale(2.5);
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
+            .setOrigin(0).setDepth(1).setScale(2);
+        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER)
+            .setDepth(5);
+        var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART)
+            .setDepth(5).setScale(2.5);
         restartButton.setInteractive();
         restartButton.on('pointerup', function () {
             restartButton.setScale(2.75);
@@ -662,7 +686,8 @@ var GameScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        var homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.HOME).setDepth(6).setScale(2.5);
+        var homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.HOME)
+            .setDepth(6).setScale(2.5);
         homeButton.setInteractive();
         homeButton.on('pointerup', function () {
             homeButton.setScale(2.75);
@@ -707,7 +732,7 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.create = function () {
         var _this = this;
         this.scene.launch(CST_1.CST.SCENES.HUDSCENE);
-        this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST_1.CST.SPRITE.PLANE);
+        this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST_1.CST.STATE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy_1.default,
             runChildUpdate: true
@@ -721,9 +746,10 @@ var GameScene = /** @class */ (function (_super) {
                 duration: 1000,
                 ease: 'Power1'
             });
-            this_1.physics.add.collider(this_1.player.bullets, enemy, function () {
+            this_1.physics.add.collider(this_1.player.bullets, enemy, function (f) {
                 enemy.Die();
-                //@ts-ignore
+                f.destroy();
+                // @ts-ignore
             }, null, this_1);
         };
         var this_1 = this;
@@ -734,7 +760,8 @@ var GameScene = /** @class */ (function (_super) {
             var enemy = child;
             enemy.setTarget(_this.player.player);
         });
-        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE).setDepth(-3).setOrigin(0).setScale(3.125);
+        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE)
+            .setDepth(-3).setOrigin(0).setScale(3.125);
     };
     return GameScene;
 }(Phaser.Scene));
@@ -773,8 +800,6 @@ var HUDScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.HUDSCENE
         }) || this;
     }
-    HUDScene.prototype.init = function () {
-    };
     HUDScene.prototype.preload = function () {
         this.anims.create({
             key: 'HeartFull',
@@ -886,20 +911,20 @@ var LoadScene = /** @class */ (function (_super) {
     LoadScene.prototype.loadImages = function () {
         this.load.setPath('./assets/images/');
         for (var prop in CST_1.CST.IMAGES) {
-            //@ts-ignore
+            // @ts-ignore
             this.load.image(CST_1.CST.IMAGES[prop], CST_1.CST.IMAGES[prop]);
         }
     };
     LoadScene.prototype.loadSounds = function () {
         this.load.setPath('./assets/sounds');
         for (var prop in CST_1.CST.AUDIO) {
-            //@ts-ignore
+            // @ts-ignore
             this.load.audio(CST_1.CST.AUDIO[prop], CST_1.CST.AUDIO[prop]);
         }
     };
     LoadScene.prototype.loadSprites = function (frameConfig) {
         for (var prop in CST_1.CST.SPRITE) {
-            //@ts-ignore
+            // @ts-ignore
             this.load.spritesheet(CST_1.CST.SPRITE[prop], CST_1.CST.SPRITE[prop], frameConfig);
         }
     };
@@ -909,6 +934,22 @@ var LoadScene = /** @class */ (function (_super) {
         this.loadSounds();
         this.load.setPath('./assets/sprites');
         this.load.spritesheet(CST_1.CST.SPRITE.PLANE, CST_1.CST.SPRITE.PLANE, {
+            frameHeight: 40,
+            frameWidth: 28
+        });
+        this.load.spritesheet(CST_1.CST.SPRITE.PLANE2, CST_1.CST.SPRITE.PLANE2, {
+            frameHeight: 40,
+            frameWidth: 28
+        });
+        this.load.spritesheet(CST_1.CST.SPRITE.PLANE3, CST_1.CST.SPRITE.PLANE3, {
+            frameHeight: 40,
+            frameWidth: 28
+        });
+        this.load.spritesheet(CST_1.CST.SPRITE.PLANE4, CST_1.CST.SPRITE.PLANE4, {
+            frameHeight: 40,
+            frameWidth: 28
+        });
+        this.load.spritesheet(CST_1.CST.SPRITE.PLANE5, CST_1.CST.SPRITE.PLANE5, {
             frameHeight: 40,
             frameWidth: 28
         });
@@ -1157,25 +1198,8 @@ var MenuScene = /** @class */ (function (_super) {
     MenuScene.prototype.preload = function () {
         this.lastFired = 0;
         this.isPlayable = false;
-        this.anims.create({
-            key: 'left',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 0 }],
-            frameRate: 24,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'turn',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 1 }],
-            frameRate: 24
-        });
-        this.anims.create({
-            key: 'right',
-            frames: [{ key: CST_1.CST.SPRITE.PLANE, frame: 2 }],
-            frameRate: 24,
-            repeat: -1
-        });
     };
-    MenuScene.prototype.update = function (time, delta) {
+    MenuScene.prototype.update = function (time) {
         if (this.isPlayable) {
             if (this.cursors.left.isDown) {
                 if (this.player.x > this.game.renderer.width / 4)
@@ -1232,9 +1256,33 @@ var MenuScene = /** @class */ (function (_super) {
     };
     MenuScene.prototype.create = function () {
         var _this = this;
+        console.log('now', CST_1.CST.STATE.PLANE);
+        if (this.anims.get('turn')) {
+            this.anims.get('left').destroy();
+            this.anims.get('turn').destroy();
+            this.anims.get('right').destroy();
+        }
+        this.anims.create({
+            key: 'left',
+            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 0 }],
+            frameRate: 24,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 1 }],
+            frameRate: 24
+        });
+        this.anims.create({
+            key: 'right',
+            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 2 }],
+            frameRate: 24,
+            repeat: -1
+        });
         this.bullets = this.physics.add.group();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.sound.pauseOnBlur = false;
+        this.sound.volume = 1;
         this.sound.play(CST_1.CST.AUDIO.MAINIMENU, {
             loop: true
         });
@@ -1345,7 +1393,8 @@ var MenuScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        var optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        var optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.BUTTON)
+            .setOrigin(0).setScale(3);
         var optionsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
             y: this.game.renderer.height / 2 + 142,
@@ -1359,14 +1408,19 @@ var MenuScene = /** @class */ (function (_super) {
         optionsImg.setInteractive();
         optionsImg.on('pointerup', function () {
             optionsImg.setScale(3.25);
-            optionsText.setScale(1.08333);
             optionsText.setX(optionsText.x + 5);
             _this.time.addEvent({
                 delay: 100,
                 callback: function () {
                     optionsImg.setScale(3);
-                    optionsText.setScale(1);
                     optionsText.setX(optionsText.x - 5);
+                    _this.time.addEvent({
+                        delay: 300,
+                        callback: function () {
+                            _this.scene.start(CST_1.CST.SCENES.OPTIONSSCENE);
+                        },
+                        loop: false
+                    });
                 },
                 loop: false
             });
@@ -1409,6 +1463,166 @@ var MenuScene = /** @class */ (function (_super) {
     return MenuScene;
 }(Phaser.Scene));
 exports.MenuScene = MenuScene;
+
+
+/***/ }),
+
+/***/ "./src/scenes/OptionsScene.ts":
+/*!************************************!*\
+  !*** ./src/scenes/OptionsScene.ts ***!
+  \************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OptionsScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var OptionsScene = /** @class */ (function (_super) {
+    __extends(OptionsScene, _super);
+    function OptionsScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.OPTIONSSCENE
+        }) || this;
+    }
+    OptionsScene.prototype.preload = function () {
+        this.text = this.make.text({
+            x: 100,
+            y: this.game.renderer.height - 100,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+    };
+    OptionsScene.prototype.create = function () {
+        var _this = this;
+        var plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE)
+            .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
+        var plane2Img = this.physics.add.sprite(this.game.renderer.width / 5 + 50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE2)
+            .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
+        var plane3Img = this.physics.add.sprite(this.game.renderer.width * 2 / 5 + 50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE3)
+            .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
+        var plane4Img = this.physics.add.sprite(this.game.renderer.width * 3 / 5 + 50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE4)
+            .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
+        var plane5Img = this.physics.add.sprite(this.game.renderer.width * 4 / 5 + 50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE5)
+            .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
+        var back1 = this.add.rectangle(40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
+            .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
+        plane1Img.setInteractive();
+        plane1Img.on('pointerover', function () {
+            back1.setVisible(true);
+        });
+        plane1Img.on('pointerout', function () {
+            back1.setVisible(false);
+        });
+        plane1Img.on('pointerup', function () {
+            _this.text.setText('Red  eagle  will  fight  for  your  life  from  now  on!');
+            CST_1.CST.STATE.PLANE = plane1Img.texture.key;
+            console.log(CST_1.CST.STATE.PLANE);
+        });
+        var back2 = this.add.rectangle(this.game.renderer.width / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
+            .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
+        plane2Img.setInteractive();
+        plane2Img.on('pointerover', function () {
+            back2.setVisible(true);
+        });
+        plane2Img.on('pointerout', function () {
+            back2.setVisible(false);
+        });
+        plane2Img.on('pointerup', function () {
+            _this.text.setText('The  best  of  the  best  -  King\'s  aviation  is  yours!');
+            CST_1.CST.STATE.PLANE = plane2Img.texture.key;
+            console.log(CST_1.CST.STATE.PLANE);
+        });
+        var back3 = this.add.rectangle(this.game.renderer.width * 2 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
+            .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
+        plane3Img.setInteractive();
+        plane3Img.on('pointerover', function () {
+            back3.setVisible(true);
+        });
+        plane3Img.on('pointerout', function () {
+            back3.setVisible(false);
+        });
+        plane3Img.on('pointerup', function () {
+            _this.text.setText('The  mercenaries  lent  you  a  plane,  but  not  for  long');
+            CST_1.CST.STATE.PLANE = plane3Img.texture.key;
+            console.log(CST_1.CST.STATE.PLANE);
+        });
+        var back4 = this.add.rectangle(this.game.renderer.width * 3 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
+            .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
+        plane4Img.setInteractive();
+        plane4Img.on('pointerover', function () {
+            back4.setVisible(true);
+        });
+        plane4Img.on('pointerout', function () {
+            back4.setVisible(false);
+        });
+        plane4Img.on('pointerup', function () {
+            _this.text.setText('The  child  of  the  powerful  Uranus  is  ready!');
+            CST_1.CST.STATE.PLANE = plane4Img.texture.key;
+            console.log(CST_1.CST.STATE.PLANE);
+        });
+        var back5 = this.add.rectangle(this.game.renderer.width * 4 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
+            .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
+        plane5Img.setInteractive();
+        plane5Img.on('pointerover', function () {
+            back5.setVisible(true);
+        });
+        plane5Img.on('pointerout', function () {
+            back5.setVisible(false);
+        });
+        plane5Img.on('pointerup', function () {
+            _this.text.setText('Surf-green  serpent  takes  off  from  the  runway!');
+            CST_1.CST.STATE.PLANE = plane5Img.texture.key;
+            console.log(CST_1.CST.STATE.PLANE);
+        });
+        var BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST_1.CST.IMAGES.BUTTON)
+            .setScale(3);
+        var BackText = this.make.text({
+            x: this.game.renderer.width / 2 - 23,
+            y: this.game.renderer.height - 57,
+            text: 'Back',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '20px',
+                color: '#000000'
+            }
+        });
+        BackImg.setInteractive();
+        BackImg.on('pointerup', function () {
+            BackImg.setScale(3.25);
+            BackText.setScale(1.08333);
+            BackText.setX(BackText.x + 5);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    BackImg.setScale(3);
+                    BackText.setScale(1);
+                    BackText.setX(BackText.x - 5);
+                    _this.scene.start(CST_1.CST.SCENES.MENU);
+                },
+                loop: false
+            });
+        });
+    };
+    return OptionsScene;
+}(Phaser.Scene));
+exports.OptionsScene = OptionsScene;
 
 
 /***/ })

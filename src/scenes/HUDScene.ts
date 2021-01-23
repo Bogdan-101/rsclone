@@ -11,10 +11,6 @@ export class HUDScene extends Phaser.Scene{
         })
     }
 
-    init(){
-
-    }
-
     preload(){
         this.anims.create({
             key: 'HeartFull',
@@ -56,12 +52,12 @@ export class HUDScene extends Phaser.Scene{
     create(){
         this.add.image(25, this.game.renderer.height, CST.IMAGES.HPBACK).setOrigin(0, 1);
 
-        this.heart1 = this.physics.add.sprite(100, this.game.renderer.height -10, CST.SPRITE.HEART).setOrigin(0, 1);
-            this.heart1.anims.play('HeartFull');
+        this.heart1 = this.physics.add.sprite(100, this.game.renderer.height - 10, CST.SPRITE.HEART).setOrigin(0, 1);
+        this.heart1.anims.play('HeartFull');
         this.heart2 = this.physics.add.sprite(155, this.game.renderer.height - 10, CST.SPRITE.HEART).setOrigin(0, 1);
-            this.heart2.anims.play('HeartFull');
+        this.heart2.anims.play('HeartFull');
         this.heart3 = this.physics.add.sprite(210, this.game.renderer.height - 10, CST.SPRITE.HEART).setOrigin(0, 1);
-            this.heart3.anims.play('HeartFull');
+        this.heart3.anims.play('HeartFull');
 
         this.healthText = this.make.text({
             x: this.game.renderer.width / 2 - 200 ,
