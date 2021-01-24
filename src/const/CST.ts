@@ -19,7 +19,8 @@ export let CST = {
         RESTART: "Restart.png",
         HOME: "Home.png",
         HPBACK: "HPBack.png",
-        ARROWBUTTON: "ArrowButton.png"
+        ARROWBUTTON: "ArrowButton.png",
+        SCORE: "Score.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",

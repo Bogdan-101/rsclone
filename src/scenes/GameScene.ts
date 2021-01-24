@@ -18,6 +18,8 @@ export class GameScene extends Phaser.Scene{
     private musicIndex!: number;
 
     preload(){
+        this.registry.set('score', 0);
+
         this.anims.create({
             key: 'explode',
             frameRate: 10,
@@ -159,6 +161,7 @@ export class GameScene extends Phaser.Scene{
                     ease: 'Power1'
                 });
                 this.physics.add.collider(this.player.bullets, enemy, () => {
+                    this.registry.set('score', this.registry.get('score') + 10);
                     enemy.Die();
                     // @ts-ignore
                 }, null, this);
@@ -323,6 +326,7 @@ export class GameScene extends Phaser.Scene{
                 ease: 'Power1'
             });
             this.physics.add.collider(this.player.bullets, enemy, (f) => {
+                this.registry.set('score', this.registry.get('score') + 10);
                 enemy.Die();
                 f.destroy();
                 // @ts-ignore

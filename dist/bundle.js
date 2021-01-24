@@ -32,7 +32,8 @@ exports.CST = {
         RESTART: "Restart.png",
         HOME: "Home.png",
         HPBACK: "HPBack.png",
-        ARROWBUTTON: "ArrowButton.png"
+        ARROWBUTTON: "ArrowButton.png",
+        SCORE: "Score.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -559,6 +560,7 @@ var GameScene = /** @class */ (function (_super) {
         }) || this;
     }
     GameScene.prototype.preload = function () {
+        this.registry.set('score', 0);
         this.anims.create({
             key: 'explode',
             frameRate: 10,
@@ -633,6 +635,7 @@ var GameScene = /** @class */ (function (_super) {
         });
     };
     GameScene.prototype.update = function (time) {
+        var _this = this;
         if (+CST_1.CST.STATE.AUDIO !== 0 && !this.music.isPlaying) {
             var rand = Phaser.Math.Between(1, 2);
             while (rand === this.musicIndex)
@@ -688,6 +691,7 @@ var GameScene = /** @class */ (function (_super) {
                     ease: 'Power1'
                 });
                 this.physics.add.collider(this.player.bullets, enemy_1, function () {
+                    _this.registry.set('score', _this.registry.get('score') + 10);
                     enemy_1.Die();
                     // @ts-ignore
                 }, null, this);
@@ -836,6 +840,7 @@ var GameScene = /** @class */ (function (_super) {
                 ease: 'Power1'
             });
             this_1.physics.add.collider(this_1.player.bullets, enemy, function (f) {
+                _this.registry.set('score', _this.registry.get('score') + 10);
                 enemy.Die();
                 f.destroy();
                 // @ts-ignore
@@ -926,25 +931,26 @@ var HUDScene = /** @class */ (function (_super) {
     };
     HUDScene.prototype.create = function () {
         this.add.image(25, this.game.renderer.height, CST_1.CST.IMAGES.HPBACK).setOrigin(0, 1);
+        this.add.image(this.game.renderer.width / 2 - 50, this.game.renderer.height, CST_1.CST.IMAGES.SCORE).setOrigin(0, 1);
         this.heart1 = this.physics.add.sprite(100, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
         this.heart1.anims.play('HeartFull');
         this.heart2 = this.physics.add.sprite(155, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
         this.heart2.anims.play('HeartFull');
         this.heart3 = this.physics.add.sprite(210, this.game.renderer.height - 10, CST_1.CST.SPRITE.HEART).setOrigin(0, 1);
         this.heart3.anims.play('HeartFull');
-        this.healthText = this.make.text({
-            x: this.game.renderer.width / 2 - 200,
-            y: this.game.renderer.height / 2 - 200,
-            text: this.registry.get('health'),
+        this.scoreText = this.make.text({
+            x: this.game.renderer.width / 2 + 15,
+            y: this.game.renderer.height - 50,
+            text: 'Score:\n' + this.registry.get('score'),
             style: {
                 fontFamily: 'arcadeFont',
-                fontSize: '82px',
-                color: '#000000'
+                fontSize: '20px',
+                color: '#ffffff'
             }
-        }).setDepth(10);
+        }).setDepth(11);
     };
     HUDScene.prototype.update = function () {
-        this.healthText.setText(this.registry.get('health'));
+        this.scoreText.setText('Score: \n' + this.registry.get('score'));
         if (this.registry.get('health') === 6)
             this.heart3.anims.play('HeartFull');
         if (this.registry.get('health') === 5)
