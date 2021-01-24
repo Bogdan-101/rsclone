@@ -3,6 +3,7 @@ import { CST } from '../const/CST';
 export class OptionsScene extends Phaser.Scene{
 
     private text!: Phaser.GameObjects.Text;
+    private audioText!: Phaser.GameObjects.Text;
     constructor(){
         super({
             key: CST.SCENES.OPTIONSSCENE
@@ -12,8 +13,30 @@ export class OptionsScene extends Phaser.Scene{
     preload() {
         this.text = this.make.text({
             x: 100,
-            y: this.game.renderer.height - 100,
+            y: this.game.renderer.height - 125,
             text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
+        this.audioText = this.make.text({
+            x: this.game.renderer.width / 2 - 10,
+            y: this.game.renderer.height / 2 - 120,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
+        this.make.text({
+            x: this.game.renderer.width / 2 - 70,
+            y: this.game.renderer.height / 2 - 170,
+            text: 'Volume:',
             style: {
                 fontFamily: 'arcadeFont',
                 fontSize: '26px',
@@ -22,7 +45,34 @@ export class OptionsScene extends Phaser.Scene{
         });
     }
 
+    update(){
+        this.audioText.setText(CST.STATE.AUDIO.slice(0, 3));
+    }
+
     create(){
+        const upButton = this.add.image(this.game.renderer.width / 2 + 50, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setOrigin(0);
+        const downButton = this.add.image(this.game.renderer.width / 2 + 50 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setRotation(3.1415926538);
+
+        upButton.setInteractive();
+
+        upButton.on('pointerup', () => {
+            if (+CST.STATE.AUDIO + 0.1 <= 0.9)
+                CST.STATE.AUDIO = (+CST.STATE.AUDIO + 0.1).toString();
+            else
+                CST.STATE.AUDIO = '1';
+        });
+
+        downButton.setInteractive();
+
+        downButton.on('pointerup', () => {
+            if (+CST.STATE.AUDIO - 0.1 >= 0.1)
+                CST.STATE.AUDIO = (+CST.STATE.AUDIO - 0.1).toString();
+            else
+                CST.STATE.AUDIO = '0';
+        });
+
         const plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST.SPRITE.PLANE)
             .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
         const plane2Img = this.physics.add.sprite(this.game.renderer.width / 5 + 50, this.game.renderer.height * 3 / 5, CST.SPRITE.PLANE2)

@@ -132,6 +132,7 @@ export default class Hero extends Phaser.GameObjects.Sprite
                         },
                         delay: 3000
                     })
+                    this.scene.sound.add(CST.AUDIO.BLASTER, { volume: +CST.STATE.AUDIO * 0.3 }).play();
                 }
         }
     }

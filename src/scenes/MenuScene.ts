@@ -89,7 +89,7 @@ export class MenuScene extends Phaser.Scene{
     }
 
     create(){
-        console.log('now',  CST.STATE.PLANE);
+        this.sound.stopAll();
         if (this.anims.get('turn')) {
             this.anims.get('left').destroy();
             this.anims.get('turn').destroy();
@@ -120,7 +120,8 @@ export class MenuScene extends Phaser.Scene{
         this.sound.pauseOnBlur = false;
         this.sound.volume = 1;
         this.sound.play(CST.AUDIO.MAINIMENU, {
-            loop: true
+            loop: true,
+            volume: +CST.STATE.AUDIO
         });
 
         this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST.SPRITE.PLANE)
@@ -263,6 +264,7 @@ export class MenuScene extends Phaser.Scene{
                     this.time.addEvent({
                         delay: 300,
                         callback: () => {
+                            this.sound.stopAll();
                             this.scene.start(CST.SCENES.OPTIONSSCENE);
                         },
                         loop: false

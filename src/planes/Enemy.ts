@@ -34,6 +34,8 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
     }
 
  CreateMovement(): void {
+        if (this.scene.registry.get('health') === 0)
+            return;
         let yMoving = Phaser.Math.FloatBetween(0, 100);
         let xMoving = Phaser.Math.FloatBetween(-100, 100);
         const chance = Phaser.Math.Between(0, 1);
@@ -107,7 +109,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 		const rotation = Phaser.Math.Angle.Between(x, y, tx, ty)
   this.setRotation(rotation - 1.575);
 
-  if (t > this.lastFired || typeof(this.lastFired) === 'undefined') {
+  if ((t > this.lastFired && this.scene.registry.get('health') !== 0) || typeof(this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
             const rocket = this.rockets.create(x, y + 10, CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
             rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
@@ -119,9 +121,11 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
                 },
                 delay: 3000
             })
+            if (!this.scene.sound.get(CST.AUDIO.ENEMYBLASTER))
+                this.scene.sound.play(CST.AUDIO.ENEMYBLASTER, {volume: +CST.STATE.AUDIO * 0.05});
         }
 
-  if (!this.isMoving) {
+  if (!this.isMoving && this.scene.registry.get('health') !== 0) {
             this.isMoving = true;
             this.CreateMovement();
         }

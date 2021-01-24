@@ -14,6 +14,8 @@ export class GameScene extends Phaser.Scene{
     private background!: Phaser.GameObjects.TileSprite;
     private lastSpawned!: number;
     private enemies!: Phaser.GameObjects.Group;
+    private music!: Phaser.Sound.BaseSound;
+    private musicIndex!: number;
 
     preload(){
         this.anims.create({
@@ -98,13 +100,55 @@ export class GameScene extends Phaser.Scene{
     }
 
     update(time: number){
+        if (+CST.STATE.AUDIO !== 0 && !this.music.isPlaying) {
+            let rand = Phaser.Math.Between(1, 2);
+            while (rand === this.musicIndex)
+                rand = Phaser.Math.Between(1, 2);
+
+            switch (rand) {
+                case 1: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+                case 2: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC2, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+                default: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+            }
+
+            const musicText = this.make.text({
+                x: this.game.renderer.width - 200,
+                y: this.game.renderer.height - 50,
+                text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
+                style: {
+                    fontFamily: 'arcadeFont',
+                    fontSize: '16px',
+                    color: '#000000'
+                }
+            })
+
+            this.time.addEvent({
+                delay: 5000,
+                callback: () => {
+                    musicText.destroy();
+                },
+                loop: false
+            });
+        }
         this.player.update(time);
         if (typeof(this.lastSpawned) === 'undefined')
             this.lastSpawned = time + 5000;
         if (this.player.health !== 0) {
             this.background.tilePositionY -= 0.5;
 
-            if (time > this.lastSpawned && this.player.health !== 0) {
+            if (time > this.lastSpawned && this.registry.get('health') !== 0) {
                 this.lastSpawned = time + 1000;
                 const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
                 enemy.init(this.player.player, this);
@@ -130,6 +174,7 @@ export class GameScene extends Phaser.Scene{
         if (this.player.Hit() !== 0) {
             return;
         }
+        this.sound.stopByKey(CST.AUDIO.ENEMYBLASTER);
         this.scene.pause(CST.SCENES.HUDSCENE);
         this.scene.setVisible(false, CST.SCENES.HUDSCENE);
         this.physics.pause();
@@ -157,6 +202,7 @@ export class GameScene extends Phaser.Scene{
                 callback: () => {
                     this.sound.stopAll();
                     this.scene.stop();
+                    this.music.stop();
                     this.scene.start(CST.SCENES.GAME);
                     this.scene.resume(CST.SCENES.HUDSCENE);
                     this.scene.setVisible(true, CST.SCENES.HUDSCENE);
@@ -183,6 +229,7 @@ export class GameScene extends Phaser.Scene{
                 delay: 200,
                 callback: () => {
                     this.sound.stopAll();
+                    this.music.stop();
                     this.scene.start(CST.SCENES.MENU);
                 },
                 loop: false
@@ -217,11 +264,53 @@ export class GameScene extends Phaser.Scene{
     }
 
     create(){
+        if (+CST.STATE.AUDIO >= 0.1) {
+            const rand = Phaser.Math.Between(1, 2);
+
+            switch (rand) {
+                case 1: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+                case 2: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC2, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+                default: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
+                    this.music.play();
+                    break;
+                }
+            }
+
+            const musicText = this.make.text({
+                x: this.game.renderer.width - 200,
+                y: this.game.renderer.height - 50,
+
+                text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
+                style: {
+                    fontFamily: 'arcadeFont',
+                    fontSize: '16px',
+                    color: '#000000'
+                }
+            })
+
+            this.time.addEvent({
+                delay: 5000,
+                callback: () => {
+                    musicText.destroy();
+                },
+                loop: false
+            });
+        }
+
         this.scene.launch(CST.SCENES.HUDSCENE);
         this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST.STATE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy,
-			runChildUpdate: true
+			         runChildUpdate: true
         })
 
         for (let i = 0; i < 5; i += 1) {

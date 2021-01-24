@@ -18,10 +18,15 @@ export let CST = {
         GAMEOVER: "game_over.png",
         RESTART: "Restart.png",
         HOME: "Home.png",
-        HPBACK: "HPBack.png"
+        HPBACK: "HPBack.png",
+        ARROWBUTTON: "ArrowButton.png"
     },
     AUDIO: {
-        MAINIMENU: "MainMenuMusic.mp3"
+        BLASTER: "blaster.mp3",
+        MAINIMENU: "MainMenuMusic.mp3",
+        MUSIC1: "Суперюность - Ночь.mp3",
+        MUSIC2: "Суперюность - Погоня.mp3",
+        ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
         PLANE: "PlaneSprites.png",
@@ -36,7 +41,7 @@ export let CST = {
         HEART: "HealthHearts.png"
     },
     STATE: {
-        AUDIO: "1",
+        AUDIO: "0.5",
         PLANE: "PlaneSprites.png"
     }
 }
