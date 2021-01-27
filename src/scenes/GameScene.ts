@@ -8,15 +8,14 @@ export class GameScene extends Phaser.Scene{
         super({
             key: CST.SCENES.GAME
         })
+        this.isPaused = false;
     }
 
     private player!: Hero;
     private background!: Phaser.GameObjects.TileSprite;
     private lastSpawned!: number;
     private enemies!: Phaser.GameObjects.Group;
-    private music!: Phaser.Sound.BaseSound;
-    private musicIndex!: number;
-
+    public isPaused: boolean;
     preload(){
         this.registry.set('score', 0);
 
@@ -101,56 +100,18 @@ export class GameScene extends Phaser.Scene{
 
     }
 
+    init() {
+        console.log('init');
+    }
+
     update(time: number){
-        if (+CST.STATE.AUDIO !== 0 && !this.music.isPlaying) {
-            let rand = Phaser.Math.Between(1, 2);
-            while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 2);
-
-            switch (rand) {
-                case 1: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                case 2: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC2, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                default: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-            }
-
-            const musicText = this.make.text({
-                x: this.game.renderer.width - 200,
-                y: this.game.renderer.height - 50,
-                text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
-                style: {
-                    fontFamily: 'arcadeFont',
-                    fontSize: '16px',
-                    color: '#000000'
-                }
-            })
-
-            this.time.addEvent({
-                delay: 5000,
-                callback: () => {
-                    musicText.destroy();
-                },
-                loop: false
-            });
-        }
         this.player.update(time);
         if (typeof(this.lastSpawned) === 'undefined')
             this.lastSpawned = time + 5000;
-        if (this.player.health !== 0) {
+        if (this.player.health !== 0 && this.isPaused !== true) {
             this.background.tilePositionY -= 0.5;
 
-            if (time > this.lastSpawned && this.registry.get('health') !== 0) {
+            if (time > this.lastSpawned) {
                 this.lastSpawned = time + 1000;
                 const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
                 enemy.init(this.player.player, this);
@@ -177,67 +138,15 @@ export class GameScene extends Phaser.Scene{
         if (this.player.Hit() !== 0) {
             return;
         }
-        this.sound.stopByKey(CST.AUDIO.ENEMYBLASTER);
+        this.sound.stopAll();
         this.scene.pause(CST.SCENES.HUDSCENE);
+        this.scene.stop(CST.SCENES.MUSICSCENE);
         this.scene.setVisible(false, CST.SCENES.HUDSCENE);
         this.physics.pause();
+        this.isPaused = true;
         this.player.player.setTint(0xff5555);
-        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
-            .setOrigin(0).setDepth(1).setScale(2);
-        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST.IMAGES.GAMEOVER)
-            .setDepth(5);
-        const restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST.IMAGES.RESTART)
-            .setDepth(5).setScale(2.5);
 
-        restartButton.setInteractive();
-
-        restartButton.on('pointerup', () => {
-            restartButton.setScale(2.75);
-            this.time.addEvent({
-                delay: 100,
-                callback: () => {
-                    restartButton.setScale(2.5);
-                },
-                loop: false
-            });
-            this.time.addEvent({
-                delay: 200,
-                callback: () => {
-                    this.sound.stopAll();
-                    this.scene.stop();
-                    this.music.stop();
-                    this.scene.start(CST.SCENES.GAME);
-                    this.scene.resume(CST.SCENES.HUDSCENE);
-                    this.scene.setVisible(true, CST.SCENES.HUDSCENE);
-                },
-                loop: false
-            });
-        });
-
-        const homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST.IMAGES.HOME)
-            .setDepth(6).setScale(2.5);
-
-        homeButton.setInteractive();
-
-        homeButton.on('pointerup', () => {
-            homeButton.setScale(2.75);
-            this.time.addEvent({
-                delay: 100,
-                callback: () => {
-                    homeButton.setScale(2.5);
-                },
-                loop: false
-            });
-            this.time.addEvent({
-                delay: 200,
-                callback: () => {
-                    this.sound.stopAll();
-                    this.music.stop();
-                    this.scene.start(CST.SCENES.MENU);
-                },
-                loop: false
-            });
-        });
+        this.scene.launch(CST.SCENES.GAMEOVERSCENE);
 
         this.cameras.main.shake(300, 0.02);
         for (let i = 0; i < 20; i += 1) {
@@ -266,54 +175,29 @@ export class GameScene extends Phaser.Scene{
         this.background.tilePositionY = 0;
     }
 
+    RestartGame() {
+        this.sound.stopAll();
+        this.scene.stop();
+        this.scene.stop(CST.SCENES.MUSICSCENE);
+        this.scene.resume(CST.SCENES.HUDSCENE);
+        this.scene.setVisible(true, CST.SCENES.HUDSCENE);
+        this.scene.stop(CST.SCENES.GAMEOVERSCENE);
+        this.scene.start(CST.SCENES.GAME);
+    }
+
+    GoHome() {
+        this.sound.stopAll();
+        this.scene.stop(CST.SCENES.MUSICSCENE);
+        this.scene.stop(CST.SCENES.GAMEOVERSCENE);
+        this.scene.start(CST.SCENES.MENU);
+    }
+
     create(){
-        if (+CST.STATE.AUDIO >= 0.1) {
-            const rand = Phaser.Math.Between(1, 2);
-
-            switch (rand) {
-                case 1: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                case 2: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC2, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                default: {
-                    this.music = this.sound.add(CST.AUDIO.MUSIC1, { volume: +CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-            }
-
-            const musicText = this.make.text({
-                x: this.game.renderer.width - 200,
-                y: this.game.renderer.height - 50,
-
-                text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
-                style: {
-                    fontFamily: 'arcadeFont',
-                    fontSize: '16px',
-                    color: '#000000'
-                }
-            })
-
-            this.time.addEvent({
-                delay: 5000,
-                callback: () => {
-                    musicText.destroy();
-                },
-                loop: false
-            });
-        }
-
+        this.scene.launch(CST.SCENES.MUSICSCENE);
         this.scene.launch(CST.SCENES.HUDSCENE);
         this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST.STATE.PLANE);
         this.enemies = this.physics.add.group({
-            classType: Enemy,
-			         runChildUpdate: true
+            classType: Enemy, runChildUpdate: true
         })
 
         for (let i = 0; i < 5; i += 1) {
@@ -333,12 +217,25 @@ export class GameScene extends Phaser.Scene{
             }, null, this);
         }
 
-        this.enemies.children.each(child => {
+        this.enemies.children.each((child) => {
 			const enemy = child as unknown as IEnemy
 			enemy.setTarget(this.player.player!)
 		})
 
         this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST.IMAGES.STAGE)
             .setDepth(-3).setOrigin(0).setScale(3.125);
+
+        this.input.keyboard.on('keydown-ESC', () => {
+            this.physics.pause();
+            this.isPaused = true;
+            this.scene.launch(CST.SCENES.PAUSESCENE);
+            
+        });
+    }
+
+    ContinuePlay() {
+        this.scene.stop(CST.SCENES.PAUSESCENE);
+        this.physics.resume();
+        this.isPaused = false;
     }
 }

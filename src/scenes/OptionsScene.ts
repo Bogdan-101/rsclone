@@ -3,7 +3,8 @@ import { CST } from '../const/CST';
 export class OptionsScene extends Phaser.Scene{
 
     private text!: Phaser.GameObjects.Text;
-    private audioText!: Phaser.GameObjects.Text;
+    private musicText!: Phaser.GameObjects.Text;
+    private effectsText!: Phaser.GameObjects.Text;
     constructor(){
         super({
             key: CST.SCENES.OPTIONSSCENE
@@ -22,8 +23,19 @@ export class OptionsScene extends Phaser.Scene{
             }
         });
 
-        this.audioText = this.make.text({
-            x: this.game.renderer.width / 2 - 10,
+        this.musicText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: this.game.renderer.height / 2 - 120,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
+        this.effectsText = this.make.text({
+            x: 130,
             y: this.game.renderer.height / 2 - 120,
             text: '',
             style: {
@@ -34,9 +46,20 @@ export class OptionsScene extends Phaser.Scene{
         });
 
         this.make.text({
-            x: this.game.renderer.width / 2 - 70,
+            x: this.game.renderer.width - 250,
             y: this.game.renderer.height / 2 - 170,
-            text: 'Volume:',
+            text: 'Music:',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
+        this.make.text({
+            x: 70,
+            y: this.game.renderer.height / 2 - 170,
+            text: 'Effects:',
             style: {
                 fontFamily: 'arcadeFont',
                 fontSize: '26px',
@@ -46,31 +69,55 @@ export class OptionsScene extends Phaser.Scene{
     }
 
     update(){
-        this.audioText.setText(CST.STATE.AUDIO.slice(0, 3));
+        this.musicText.setText(CST.STATE.MUSIC.slice(0, 3));
+        this.effectsText.setText(CST.STATE.EFFECTS.slice(0, 3));
     }
 
     create(){
-        const upButton = this.add.image(this.game.renderer.width / 2 + 50, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
+        const upMusic = this.add.image(this.game.renderer.width - 150, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setOrigin(0);
-        const downButton = this.add.image(this.game.renderer.width / 2 + 50 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
+        const downMusic = this.add.image(this.game.renderer.width - 150 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setRotation(3.1415926538);
 
-        upButton.setInteractive();
+        upMusic.setInteractive();
 
-        upButton.on('pointerup', () => {
-            if (+CST.STATE.AUDIO + 0.1 <= 0.9)
-                CST.STATE.AUDIO = (+CST.STATE.AUDIO + 0.1).toString();
+        upMusic.on('pointerup', () => {
+            if (+CST.STATE.MUSIC + 0.1 <= 0.9)
+                CST.STATE.MUSIC = (+CST.STATE.MUSIC + 0.1).toString();
             else
-                CST.STATE.AUDIO = '1';
+                CST.STATE.MUSIC = '1';
         });
 
-        downButton.setInteractive();
+        downMusic.setInteractive();
 
-        downButton.on('pointerup', () => {
-            if (+CST.STATE.AUDIO - 0.1 >= 0.1)
-                CST.STATE.AUDIO = (+CST.STATE.AUDIO - 0.1).toString();
+        downMusic.on('pointerup', () => {
+            if (+CST.STATE.MUSIC - 0.1 >= 0.1)
+                CST.STATE.MUSIC = (+CST.STATE.MUSIC - 0.1).toString();
             else
-                CST.STATE.AUDIO = '0';
+                CST.STATE.MUSIC = '0';
+        });
+
+        const upEffects = this.add.image(190, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setOrigin(0);
+        const downEffects = this.add.image(190 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setRotation(3.1415926538);
+
+        upEffects.setInteractive();
+
+        upEffects.on('pointerup', () => {
+            if (+CST.STATE.EFFECTS + 0.1 <= 0.9)
+                CST.STATE.EFFECTS = (+CST.STATE.EFFECTS + 0.1).toString();
+            else
+                CST.STATE.EFFECTS = '1';
+        });
+
+        downEffects.setInteractive();
+
+        downEffects.on('pointerup', () => {
+            if (+CST.STATE.EFFECTS - 0.1 >= 0.1)
+                CST.STATE.EFFECTS = (+CST.STATE.EFFECTS - 0.1).toString();
+            else
+                CST.STATE.EFFECTS = '0';
         });
 
         const plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST.SPRITE.PLANE)
@@ -107,7 +154,6 @@ export class OptionsScene extends Phaser.Scene{
             this.text.setText('Red  eagle  will  fight  for  your  life  from  now  on!');
 
             CST.STATE.PLANE = plane1Img.texture.key;
-            console.log(CST.STATE.PLANE);
         });
 
         const back2 = this.add.rectangle(
@@ -130,10 +176,9 @@ export class OptionsScene extends Phaser.Scene{
         });
 
         plane2Img.on('pointerup', () => {
-            this.text.setText('The  best  of  the  best  -  King\'s  aviation  is  yours!');
+            this.text.setText('The  best  of  the  beast  -  King\'s  aviation  is  yours!');
 
             CST.STATE.PLANE = plane2Img.texture.key;
-            console.log(CST.STATE.PLANE);
         });
 
         const back3 = this.add.rectangle(
@@ -159,7 +204,6 @@ export class OptionsScene extends Phaser.Scene{
             this.text.setText('The  mercenaries  lent  you  a  plane,  but  not  for  long');
 
             CST.STATE.PLANE = plane3Img.texture.key;
-            console.log(CST.STATE.PLANE);
         });
 
         const back4 = this.add.rectangle(
@@ -185,7 +229,6 @@ export class OptionsScene extends Phaser.Scene{
             this.text.setText('The  child  of  the  powerful  Uranus  is  ready!');
 
             CST.STATE.PLANE = plane4Img.texture.key;
-            console.log(CST.STATE.PLANE);
         });
 
         const back5 = this.add.rectangle(
@@ -211,7 +254,6 @@ export class OptionsScene extends Phaser.Scene{
             this.text.setText('Surf-green  serpent  takes  off  from  the  runway!');
 
             CST.STATE.PLANE = plane5Img.texture.key;
-            console.log(CST.STATE.PLANE);
         });
 
         const BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST.IMAGES.BUTTON)

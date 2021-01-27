@@ -132,7 +132,7 @@ export class LoadScene extends Phaser.Scene{
                 300 * percent,
                 30
             );
-            percentText.setText((percent * 100).toString() + '%');
+            percentText.setText((percent * 100).toString().slice(0, 3) + '%');
         })
 
         this.load.on('fileprogress', (file : Phaser.Loader.File) => {

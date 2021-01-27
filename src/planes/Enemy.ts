@@ -97,16 +97,16 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 	{
 		if (!this.target)
 		{
-			return
+			return;
 		}
 
-		const tx = this.target.x
-		const ty = this.target.y
+		const tx = this.target.x;
+		const ty = this.target.y;
 
-		const x = this.x
-		const y = this.y
+		const x = this.x;
+		const y = this.y;
 
-		const rotation = Phaser.Math.Angle.Between(x, y, tx, ty)
+		const rotation = Phaser.Math.Angle.Between(x, y, tx, ty);
   this.setRotation(rotation - 1.575);
 
   if ((t > this.lastFired && this.scene.registry.get('health') !== 0) || typeof(this.lastFired) === 'undefined') {
@@ -114,18 +114,24 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
             const rocket = this.rockets.create(x, y + 10, CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
             rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
             rocket.setAcceleration(0, 10);
-            this.scene.time.addEvent({
-                loop: false,
-                callback: () => {
+            // this.scene.time.addEvent({
+            //     loop: false,
+            //     callback: () => {
+            //         rocket.destroy();
+            //     },
+            //     delay: 3000
+            // })
+            this.rockets.children.each((rocketInstance) => {
+                const rocket = rocketInstance as Phaser.GameObjects.Sprite;
+                if (rocket.y > this.scene.game.renderer.height)
                     rocket.destroy();
-                },
-                delay: 3000
             })
             if (!this.scene.sound.get(CST.AUDIO.ENEMYBLASTER))
-                this.scene.sound.play(CST.AUDIO.ENEMYBLASTER, {volume: +CST.STATE.AUDIO * 0.05});
+                this.scene.sound.play(CST.AUDIO.ENEMYBLASTER, {volume: +CST.STATE.EFFECTS * 0.09});
         }
 
-  if (!this.isMoving && this.scene.registry.get('health') !== 0) {
+        //@ts-ignore
+  if (!this.isMoving && this.scene.isPaused !== true) {
             this.isMoving = true;
             this.CreateMovement();
         }

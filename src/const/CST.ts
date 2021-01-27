@@ -5,7 +5,10 @@ export let CST = {
         GAME: "GAME",
         CHOOSELEVEL: "CHOOSELEVEL",
         HUDSCENE: "HUDSCENE",
-        OPTIONSSCENE: "OPTIONSSCENE"
+        OPTIONSSCENE: "OPTIONSSCENE",
+        GAMEOVERSCENE: "GAMEOVERSCENE",
+        MUSICSCENE: "MUSICSCENE",
+        PAUSESCENE: "PAUSESCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -27,6 +30,7 @@ export let CST = {
         MAINIMENU: "MainMenuMusic.mp3",
         MUSIC1: "Суперюность - Ночь.mp3",
         MUSIC2: "Суперюность - Погоня.mp3",
+        MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
@@ -42,7 +46,8 @@ export let CST = {
         HEART: "HealthHearts.png"
     },
     STATE: {
-        AUDIO: "0.5",
+        MUSIC: "0.5",
+        EFFECTS: "0.5",
         PLANE: "PlaneSprites.png"
     }
 }

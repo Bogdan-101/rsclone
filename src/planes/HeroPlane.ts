@@ -67,7 +67,6 @@ export default class Hero extends Phaser.GameObjects.Sprite
               })
         }
 
-        // console.log(this.health);
         return this.health;
     }
 
@@ -132,7 +131,7 @@ export default class Hero extends Phaser.GameObjects.Sprite
                         },
                         delay: 3000
                     })
-                    this.scene.sound.add(CST.AUDIO.BLASTER, { volume: +CST.STATE.AUDIO * 0.3 }).play();
+                    this.scene.sound.add(CST.AUDIO.BLASTER, { volume: +CST.STATE.EFFECTS * 0.5 }).play();
                 }
         }
     }

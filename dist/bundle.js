@@ -18,7 +18,10 @@ exports.CST = {
         GAME: "GAME",
         CHOOSELEVEL: "CHOOSELEVEL",
         HUDSCENE: "HUDSCENE",
-        OPTIONSSCENE: "OPTIONSSCENE"
+        OPTIONSSCENE: "OPTIONSSCENE",
+        GAMEOVERSCENE: "GAMEOVERSCENE",
+        MUSICSCENE: "MUSICSCENE",
+        PAUSESCENE: "PAUSESCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -40,6 +43,7 @@ exports.CST = {
         MAINIMENU: "MainMenuMusic.mp3",
         MUSIC1: "Суперюность - Ночь.mp3",
         MUSIC2: "Суперюность - Погоня.mp3",
+        MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
@@ -55,7 +59,8 @@ exports.CST = {
         HEART: "HealthHearts.png"
     },
     STATE: {
-        AUDIO: "0.5",
+        MUSIC: "0.5",
+        EFFECTS: "0.5",
         PLANE: "PlaneSprites.png"
     }
 };
@@ -78,11 +83,14 @@ var MenuScene_1 = __webpack_require__(/*! ./scenes/MenuScene */ "./src/scenes/Me
 var ChooseScene_1 = __webpack_require__(/*! ./scenes/ChooseScene */ "./src/scenes/ChooseScene.ts");
 var HUDScene_1 = __webpack_require__(/*! ./scenes/HUDScene */ "./src/scenes/HUDScene.ts");
 var OptionsScene_1 = __webpack_require__(/*! ./scenes/OptionsScene */ "./src/scenes/OptionsScene.ts");
+var GameOverScene_1 = __webpack_require__(/*! ./scenes/GameOverScene */ "./src/scenes/GameOverScene.ts");
+var MusicScene_1 = __webpack_require__(/*! ./scenes/MusicScene */ "./src/scenes/MusicScene.ts");
+var PauseScene_1 = __webpack_require__(/*! ./scenes/PauseScene */ "./src/scenes/PauseScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene, OptionsScene_1.OptionsScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene, OptionsScene_1.OptionsScene, GameOverScene_1.GameOverScene, MusicScene_1.MusicScene, PauseScene_1.PauseScene
     ],
     render: {
         pixelArt: true
@@ -197,6 +205,7 @@ var Enemy = /** @class */ (function (_super) {
         this.target = target;
     };
     Enemy.prototype.update = function (t) {
+        var _this = this;
         if (!this.target) {
             return;
         }
@@ -208,20 +217,26 @@ var Enemy = /** @class */ (function (_super) {
         this.setRotation(rotation - 1.575);
         if ((t > this.lastFired && this.scene.registry.get('health') !== 0) || typeof (this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
-            var rocket_1 = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
-            rocket_1.setVelocity(-Math.sin(rocket_1.rotation) * 200, Math.cos(rocket_1.rotation) * 200);
-            rocket_1.setAcceleration(0, 10);
-            this.scene.time.addEvent({
-                loop: false,
-                callback: function () {
-                    rocket_1.destroy();
-                },
-                delay: 3000
+            var rocket = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
+            rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
+            rocket.setAcceleration(0, 10);
+            // this.scene.time.addEvent({
+            //     loop: false,
+            //     callback: () => {
+            //         rocket.destroy();
+            //     },
+            //     delay: 3000
+            // })
+            this.rockets.children.each(function (rocketInstance) {
+                var rocket = rocketInstance;
+                if (rocket.y > _this.scene.game.renderer.height)
+                    rocket.destroy();
             });
             if (!this.scene.sound.get(CST_1.CST.AUDIO.ENEMYBLASTER))
-                this.scene.sound.play(CST_1.CST.AUDIO.ENEMYBLASTER, { volume: +CST_1.CST.STATE.AUDIO * 0.05 });
+                this.scene.sound.play(CST_1.CST.AUDIO.ENEMYBLASTER, { volume: +CST_1.CST.STATE.EFFECTS * 0.09 });
         }
-        if (!this.isMoving && this.scene.registry.get('health') !== 0) {
+        //@ts-ignore
+        if (!this.isMoving && this.scene.isPaused !== true) {
             this.isMoving = true;
             this.CreateMovement();
         }
@@ -308,7 +323,6 @@ var Hero = /** @class */ (function (_super) {
                 repeat: 5
             });
         }
-        // console.log(this.health);
         return this.health;
     };
     Hero.prototype.update = function (time) {
@@ -357,7 +371,7 @@ var Hero = /** @class */ (function (_super) {
                     },
                     delay: 3000
                 });
-                this.scene.sound.add(CST_1.CST.AUDIO.BLASTER, { volume: +CST_1.CST.STATE.AUDIO * 0.3 }).play();
+                this.scene.sound.add(CST_1.CST.AUDIO.BLASTER, { volume: +CST_1.CST.STATE.EFFECTS * 0.5 }).play();
             }
         }
     };
@@ -524,6 +538,96 @@ exports.ChooseScene = ChooseScene;
 
 /***/ }),
 
+/***/ "./src/scenes/GameOverScene.ts":
+/*!*************************************!*\
+  !*** ./src/scenes/GameOverScene.ts ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GameOverScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var GameOverScene = /** @class */ (function (_super) {
+    __extends(GameOverScene, _super);
+    function GameOverScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.GAMEOVERSCENE
+        }) || this;
+    }
+    GameOverScene.prototype.create = function () {
+        var _this = this;
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
+            .setOrigin(0).setDepth(1).setScale(2);
+        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER)
+            .setDepth(5);
+        var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART)
+            .setDepth(5).setScale(2.5);
+        restartButton.setInteractive();
+        restartButton.on('pointerup', function () {
+            restartButton.setScale(2.75);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    restartButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).RestartGame();
+                },
+                loop: false
+            });
+        });
+        this.input.keyboard.on('keydown-R', function () {
+            //@ts-ignore
+            _this.scene.get(CST_1.CST.SCENES.GAME).RestartGame();
+        });
+        var homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.HOME)
+            .setDepth(6).setScale(2.5);
+        homeButton.setInteractive();
+        homeButton.on('pointerup', function () {
+            homeButton.setScale(2.75);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    homeButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).GoHome();
+                },
+                loop: false
+            });
+        });
+    };
+    return GameOverScene;
+}(Phaser.Scene));
+exports.GameOverScene = GameOverScene;
+
+
+/***/ }),
+
 /***/ "./src/scenes/GameScene.ts":
 /*!*********************************!*\
   !*** ./src/scenes/GameScene.ts ***!
@@ -555,9 +659,11 @@ var HeroPlane_1 = __importDefault(__webpack_require__(/*! ../planes/HeroPlane */
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        return _super.call(this, {
+        var _this = _super.call(this, {
             key: CST_1.CST.SCENES.GAME
         }) || this;
+        _this.isPaused = false;
+        return _this;
     }
     GameScene.prototype.preload = function () {
         this.registry.set('score', 0);
@@ -634,53 +740,17 @@ var GameScene = /** @class */ (function (_super) {
             ease: 'Power1'
         });
     };
+    GameScene.prototype.init = function () {
+        console.log('init');
+    };
     GameScene.prototype.update = function (time) {
         var _this = this;
-        if (+CST_1.CST.STATE.AUDIO !== 0 && !this.music.isPlaying) {
-            var rand = Phaser.Math.Between(1, 2);
-            while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 2);
-            switch (rand) {
-                case 1: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                case 2: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                default: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-            }
-            var musicText_1 = this.make.text({
-                x: this.game.renderer.width - 200,
-                y: this.game.renderer.height - 50,
-                text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
-                style: {
-                    fontFamily: 'arcadeFont',
-                    fontSize: '16px',
-                    color: '#000000'
-                }
-            });
-            this.time.addEvent({
-                delay: 5000,
-                callback: function () {
-                    musicText_1.destroy();
-                },
-                loop: false
-            });
-        }
         this.player.update(time);
         if (typeof (this.lastSpawned) === 'undefined')
             this.lastSpawned = time + 5000;
-        if (this.player.health !== 0) {
+        if (this.player.health !== 0 && this.isPaused !== true) {
             this.background.tilePositionY -= 0.5;
-            if (time > this.lastSpawned && this.registry.get('health') !== 0) {
+            if (time > this.lastSpawned) {
                 this.lastSpawned = time + 1000;
                 var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST_1.CST.SPRITE.ENEMYATLAS);
                 enemy_1.init(this.player.player, this);
@@ -707,62 +777,14 @@ var GameScene = /** @class */ (function (_super) {
         if (this.player.Hit() !== 0) {
             return;
         }
-        this.sound.stopByKey(CST_1.CST.AUDIO.ENEMYBLASTER);
+        this.sound.stopAll();
         this.scene.pause(CST_1.CST.SCENES.HUDSCENE);
+        this.scene.stop(CST_1.CST.SCENES.MUSICSCENE);
         this.scene.setVisible(false, CST_1.CST.SCENES.HUDSCENE);
         this.physics.pause();
+        this.isPaused = true;
         this.player.player.setTint(0xff5555);
-        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
-            .setOrigin(0).setDepth(1).setScale(2);
-        this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, CST_1.CST.IMAGES.GAMEOVER)
-            .setDepth(5);
-        var restartButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.RESTART)
-            .setDepth(5).setScale(2.5);
-        restartButton.setInteractive();
-        restartButton.on('pointerup', function () {
-            restartButton.setScale(2.75);
-            _this.time.addEvent({
-                delay: 100,
-                callback: function () {
-                    restartButton.setScale(2.5);
-                },
-                loop: false
-            });
-            _this.time.addEvent({
-                delay: 200,
-                callback: function () {
-                    _this.sound.stopAll();
-                    _this.scene.stop();
-                    _this.music.stop();
-                    _this.scene.start(CST_1.CST.SCENES.GAME);
-                    _this.scene.resume(CST_1.CST.SCENES.HUDSCENE);
-                    _this.scene.setVisible(true, CST_1.CST.SCENES.HUDSCENE);
-                },
-                loop: false
-            });
-        });
-        var homeButton = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.HOME)
-            .setDepth(6).setScale(2.5);
-        homeButton.setInteractive();
-        homeButton.on('pointerup', function () {
-            homeButton.setScale(2.75);
-            _this.time.addEvent({
-                delay: 100,
-                callback: function () {
-                    homeButton.setScale(2.5);
-                },
-                loop: false
-            });
-            _this.time.addEvent({
-                delay: 200,
-                callback: function () {
-                    _this.sound.stopAll();
-                    _this.music.stop();
-                    _this.scene.start(CST_1.CST.SCENES.MENU);
-                },
-                loop: false
-            });
-        });
+        this.scene.launch(CST_1.CST.SCENES.GAMEOVERSCENE);
         this.cameras.main.shake(300, 0.02);
         for (var i = 0; i < 20; i += 1) {
             this.time.addEvent({
@@ -785,50 +807,28 @@ var GameScene = /** @class */ (function (_super) {
         }
         this.background.tilePositionY = 0;
     };
+    GameScene.prototype.RestartGame = function () {
+        this.sound.stopAll();
+        this.scene.stop();
+        this.scene.stop(CST_1.CST.SCENES.MUSICSCENE);
+        this.scene.resume(CST_1.CST.SCENES.HUDSCENE);
+        this.scene.setVisible(true, CST_1.CST.SCENES.HUDSCENE);
+        this.scene.stop(CST_1.CST.SCENES.GAMEOVERSCENE);
+        this.scene.start(CST_1.CST.SCENES.GAME);
+    };
+    GameScene.prototype.GoHome = function () {
+        this.sound.stopAll();
+        this.scene.stop(CST_1.CST.SCENES.MUSICSCENE);
+        this.scene.stop(CST_1.CST.SCENES.GAMEOVERSCENE);
+        this.scene.start(CST_1.CST.SCENES.MENU);
+    };
     GameScene.prototype.create = function () {
         var _this = this;
-        if (+CST_1.CST.STATE.AUDIO >= 0.1) {
-            var rand = Phaser.Math.Between(1, 2);
-            switch (rand) {
-                case 1: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                case 2: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-                default: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.AUDIO });
-                    this.music.play();
-                    break;
-                }
-            }
-            var musicText_2 = this.make.text({
-                x: this.game.renderer.width - 200,
-                y: this.game.renderer.height - 50,
-                text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
-                style: {
-                    fontFamily: 'arcadeFont',
-                    fontSize: '16px',
-                    color: '#000000'
-                }
-            });
-            this.time.addEvent({
-                delay: 5000,
-                callback: function () {
-                    musicText_2.destroy();
-                },
-                loop: false
-            });
-        }
+        this.scene.launch(CST_1.CST.SCENES.MUSICSCENE);
         this.scene.launch(CST_1.CST.SCENES.HUDSCENE);
         this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST_1.CST.STATE.PLANE);
         this.enemies = this.physics.add.group({
-            classType: Enemy_1.default,
-            runChildUpdate: true
+            classType: Enemy_1.default, runChildUpdate: true
         });
         var _loop_1 = function (i) {
             var enemy = this_1.enemies.get(Phaser.Math.Between(100, 800), -50, CST_1.CST.SPRITE.ENEMYATLAS);
@@ -856,6 +856,16 @@ var GameScene = /** @class */ (function (_super) {
         });
         this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE)
             .setDepth(-3).setOrigin(0).setScale(3.125);
+        this.input.keyboard.on('keydown-ESC', function () {
+            _this.physics.pause();
+            _this.isPaused = true;
+            _this.scene.launch(CST_1.CST.SCENES.PAUSESCENE);
+        });
+    };
+    GameScene.prototype.ContinuePlay = function () {
+        this.scene.stop(CST_1.CST.SCENES.PAUSESCENE);
+        this.physics.resume();
+        this.isPaused = false;
     };
     return GameScene;
 }(Phaser.Scene));
@@ -1107,7 +1117,7 @@ var LoadScene = /** @class */ (function (_super) {
         this.load.on('progress', function (percent) {
             loadingBar.clear();
             loadingBar.fillRect(_this.game.renderer.width / 2 - 150, _this.game.renderer.height / 2 - 20, 300 * percent, 30);
-            percentText.setText((percent * 100).toString() + '%');
+            percentText.setText((percent * 100).toString().slice(0, 3) + '%');
         });
         this.load.on('fileprogress', function (file) {
             assetText.setText('Loading asset: ' + file.key);
@@ -1380,7 +1390,7 @@ var MenuScene = /** @class */ (function (_super) {
         this.sound.volume = 1;
         this.sound.play(CST_1.CST.AUDIO.MAINIMENU, {
             loop: true,
-            volume: +CST_1.CST.STATE.AUDIO
+            volume: +CST_1.CST.STATE.MUSIC
         });
         this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST_1.CST.SPRITE.PLANE)
             .setScale(1.5).setDepth(10);
@@ -1393,17 +1403,17 @@ var MenuScene = /** @class */ (function (_super) {
         });
         var mainText = this.make.text({
             x: this.game.renderer.width / 2 - 200,
-            y: this.game.renderer.height / 2 - 200,
+            y: 50,
             text: 'AIRBORNE',
             style: {
                 fontFamily: 'arcadeFont',
                 fontSize: '82px',
                 color: '#000000'
             }
-        }).setDepth(1);
+        }).setDepth(1).setOrigin(0);
         var helpText = this.make.text({
-            x: this.game.renderer.width - 220,
-            y: 50,
+            x: this.game.renderer.width - 25,
+            y: 25,
             text: 'Press \'H\' to show control keys and to toggle learning mode',
             style: {
                 fontFamily: 'arcadeFont',
@@ -1411,10 +1421,10 @@ var MenuScene = /** @class */ (function (_super) {
                 color: '#000000',
                 wordWrap: { width: 200 }
             }
-        }).setDepth(1);
+        }).setDepth(1).setOrigin(1, 0);
         var hintsText = this.make.text({
-            x: this.game.renderer.width - 220,
-            y: 150,
+            x: this.game.renderer.width - 10,
+            y: 125,
             text: 'Use arrows to navigate your ship, space to shoot',
             style: {
                 fontFamily: 'arcadeFont',
@@ -1422,7 +1432,7 @@ var MenuScene = /** @class */ (function (_super) {
                 color: '#000000',
                 wordWrap: { width: 200 }
             }
-        }).setDepth(1).setVisible(false);
+        }).setDepth(1).setVisible(false).setOrigin(1, 0);
         this.input.keyboard.on('keydown-H', function () {
             hintsText.setVisible(!hintsText.visible);
             _this.isPlayable = !_this.isPlayable;
@@ -1440,10 +1450,10 @@ var MenuScene = /** @class */ (function (_super) {
         });
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
         var background = this.add.image(0, -100, CST_1.CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
-        var playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        var playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 - 80, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         var playText = this.make.text({
             x: this.game.renderer.width / 2 + 175,
-            y: this.game.renderer.height / 2 + 42,
+            y: this.game.renderer.height / 2 - 38,
             text: 'Play',
             style: {
                 fontFamily: 'arcadeFont',
@@ -1489,11 +1499,11 @@ var MenuScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        var optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST_1.CST.IMAGES.BUTTON)
+        var optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 20, CST_1.CST.IMAGES.BUTTON)
             .setOrigin(0).setScale(3);
         var optionsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
-            y: this.game.renderer.height / 2 + 142,
+            y: this.game.renderer.height / 2 + 62,
             text: 'Options',
             style: {
                 fontFamily: 'arcadeFont',
@@ -1522,10 +1532,10 @@ var MenuScene = /** @class */ (function (_super) {
                 loop: false
             });
         });
-        var creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 200, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        var creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 120, CST_1.CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         var creditsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
-            y: this.game.renderer.height / 2 + 242,
+            y: this.game.renderer.height / 2 + 162,
             text: 'Credits',
             style: {
                 fontFamily: 'arcadeFont',
@@ -1560,6 +1570,178 @@ var MenuScene = /** @class */ (function (_super) {
     return MenuScene;
 }(Phaser.Scene));
 exports.MenuScene = MenuScene;
+
+
+/***/ }),
+
+/***/ "./src/scenes/MusicScene.ts":
+/*!**********************************!*\
+  !*** ./src/scenes/MusicScene.ts ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MusicScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var MusicScene = /** @class */ (function (_super) {
+    __extends(MusicScene, _super);
+    function MusicScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.MUSICSCENE
+        }) || this;
+    }
+    MusicScene.prototype.DieMusic = function () {
+        this.sound.volume = 0.1;
+    };
+    MusicScene.prototype.create = function () {
+        var _this = this;
+        if (+CST_1.CST.STATE.MUSIC >= 0.1) {
+            var rand = Phaser.Math.Between(1, 3);
+            switch (rand) {
+                case 1: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 2: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 3: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                default: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+            }
+            var musicText_1 = this.make.text({
+                x: -200,
+                y: 10,
+                text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
+                style: {
+                    fontFamily: 'arcadeFont',
+                    fontSize: '16px',
+                    color: '#000000'
+                }
+            });
+            this.tweens.add({
+                targets: musicText_1,
+                x: 10,
+                alpha: { from: 0, to: 1 },
+                duration: 1000,
+                ease: 'Cubic.easeInOut'
+            });
+            this.time.addEvent({
+                delay: 6000,
+                callback: function () {
+                    _this.tweens.add({
+                        targets: musicText_1,
+                        x: -200,
+                        alpha: { from: 1, to: 0 },
+                        duration: 1000,
+                        ease: 'Cubic.easeInOut'
+                    });
+                    _this.time.addEvent({
+                        delay: 1000,
+                        callback: function () {
+                            musicText_1.destroy();
+                        },
+                        loop: false
+                    });
+                },
+                loop: false
+            });
+        }
+    };
+    MusicScene.prototype.update = function () {
+        var _this = this;
+        if (+CST_1.CST.STATE.MUSIC !== 0 && +CST_1.CST.STATE.EFFECTS !== 0 && !this.music.isPlaying) {
+            var rand = Phaser.Math.Between(1, 3);
+            while (rand === this.musicIndex)
+                rand = Phaser.Math.Between(1, 3);
+            switch (rand) {
+                case 1: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 2: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 3: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                default: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+            }
+            var musicText_2 = this.make.text({
+                x: -200,
+                y: 10,
+                text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
+                style: {
+                    fontFamily: 'arcadeFont',
+                    fontSize: '16px',
+                    color: '#000000'
+                }
+            });
+            this.tweens.add({
+                targets: musicText_2,
+                x: 10,
+                alpha: { from: 0, to: 1 },
+                duration: 1000,
+                ease: 'Cubic.easeInOut'
+            });
+            this.time.addEvent({
+                delay: 6000,
+                callback: function () {
+                    _this.tweens.add({
+                        targets: musicText_2,
+                        x: -200,
+                        alpha: { from: 1, to: 0 },
+                        duration: 1000,
+                        ease: 'Cubic.easeInOut'
+                    });
+                    _this.time.addEvent({
+                        delay: 1000,
+                        callback: function () {
+                            musicText_2.destroy();
+                        },
+                        loop: false
+                    });
+                },
+                loop: false
+            });
+        }
+    };
+    return MusicScene;
+}(Phaser.Scene));
+exports.MusicScene = MusicScene;
 
 
 /***/ }),
@@ -1605,8 +1787,18 @@ var OptionsScene = /** @class */ (function (_super) {
                 color: '#fff'
             }
         });
-        this.audioText = this.make.text({
-            x: this.game.renderer.width / 2 - 10,
+        this.musicText = this.make.text({
+            x: this.game.renderer.width - 220,
+            y: this.game.renderer.height / 2 - 120,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+        this.effectsText = this.make.text({
+            x: 130,
             y: this.game.renderer.height / 2 - 120,
             text: '',
             style: {
@@ -1616,9 +1808,19 @@ var OptionsScene = /** @class */ (function (_super) {
             }
         });
         this.make.text({
-            x: this.game.renderer.width / 2 - 70,
+            x: this.game.renderer.width - 250,
             y: this.game.renderer.height / 2 - 170,
-            text: 'Volume:',
+            text: 'Music:',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+        this.make.text({
+            x: 70,
+            y: this.game.renderer.height / 2 - 170,
+            text: 'Effects:',
             style: {
                 fontFamily: 'arcadeFont',
                 fontSize: '26px',
@@ -1627,27 +1829,46 @@ var OptionsScene = /** @class */ (function (_super) {
         });
     };
     OptionsScene.prototype.update = function () {
-        this.audioText.setText(CST_1.CST.STATE.AUDIO.slice(0, 3));
+        this.musicText.setText(CST_1.CST.STATE.MUSIC.slice(0, 3));
+        this.effectsText.setText(CST_1.CST.STATE.EFFECTS.slice(0, 3));
     };
     OptionsScene.prototype.create = function () {
         var _this = this;
-        var upButton = this.add.image(this.game.renderer.width / 2 + 50, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
+        var upMusic = this.add.image(this.game.renderer.width - 150, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setOrigin(0);
-        var downButton = this.add.image(this.game.renderer.width / 2 + 50 + 19, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
+        var downMusic = this.add.image(this.game.renderer.width - 150 + 19, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setRotation(3.1415926538);
-        upButton.setInteractive();
-        upButton.on('pointerup', function () {
-            if (+CST_1.CST.STATE.AUDIO + 0.1 <= 0.9)
-                CST_1.CST.STATE.AUDIO = (+CST_1.CST.STATE.AUDIO + 0.1).toString();
+        upMusic.setInteractive();
+        upMusic.on('pointerup', function () {
+            if (+CST_1.CST.STATE.MUSIC + 0.1 <= 0.9)
+                CST_1.CST.STATE.MUSIC = (+CST_1.CST.STATE.MUSIC + 0.1).toString();
             else
-                CST_1.CST.STATE.AUDIO = '1';
+                CST_1.CST.STATE.MUSIC = '1';
         });
-        downButton.setInteractive();
-        downButton.on('pointerup', function () {
-            if (+CST_1.CST.STATE.AUDIO - 0.1 >= 0.1)
-                CST_1.CST.STATE.AUDIO = (+CST_1.CST.STATE.AUDIO - 0.1).toString();
+        downMusic.setInteractive();
+        downMusic.on('pointerup', function () {
+            if (+CST_1.CST.STATE.MUSIC - 0.1 >= 0.1)
+                CST_1.CST.STATE.MUSIC = (+CST_1.CST.STATE.MUSIC - 0.1).toString();
             else
-                CST_1.CST.STATE.AUDIO = '0';
+                CST_1.CST.STATE.MUSIC = '0';
+        });
+        var upEffects = this.add.image(190, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setOrigin(0);
+        var downEffects = this.add.image(190 + 19, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setRotation(3.1415926538);
+        upEffects.setInteractive();
+        upEffects.on('pointerup', function () {
+            if (+CST_1.CST.STATE.EFFECTS + 0.1 <= 0.9)
+                CST_1.CST.STATE.EFFECTS = (+CST_1.CST.STATE.EFFECTS + 0.1).toString();
+            else
+                CST_1.CST.STATE.EFFECTS = '1';
+        });
+        downEffects.setInteractive();
+        downEffects.on('pointerup', function () {
+            if (+CST_1.CST.STATE.EFFECTS - 0.1 >= 0.1)
+                CST_1.CST.STATE.EFFECTS = (+CST_1.CST.STATE.EFFECTS - 0.1).toString();
+            else
+                CST_1.CST.STATE.EFFECTS = '0';
         });
         var plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE)
             .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
@@ -1671,7 +1892,6 @@ var OptionsScene = /** @class */ (function (_super) {
         plane1Img.on('pointerup', function () {
             _this.text.setText('Red  eagle  will  fight  for  your  life  from  now  on!');
             CST_1.CST.STATE.PLANE = plane1Img.texture.key;
-            console.log(CST_1.CST.STATE.PLANE);
         });
         var back2 = this.add.rectangle(this.game.renderer.width / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -1683,9 +1903,8 @@ var OptionsScene = /** @class */ (function (_super) {
             back2.setVisible(false);
         });
         plane2Img.on('pointerup', function () {
-            _this.text.setText('The  best  of  the  best  -  King\'s  aviation  is  yours!');
+            _this.text.setText('The  best  of  the  beast  -  King\'s  aviation  is  yours!');
             CST_1.CST.STATE.PLANE = plane2Img.texture.key;
-            console.log(CST_1.CST.STATE.PLANE);
         });
         var back3 = this.add.rectangle(this.game.renderer.width * 2 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -1699,7 +1918,6 @@ var OptionsScene = /** @class */ (function (_super) {
         plane3Img.on('pointerup', function () {
             _this.text.setText('The  mercenaries  lent  you  a  plane,  but  not  for  long');
             CST_1.CST.STATE.PLANE = plane3Img.texture.key;
-            console.log(CST_1.CST.STATE.PLANE);
         });
         var back4 = this.add.rectangle(this.game.renderer.width * 3 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -1713,7 +1931,6 @@ var OptionsScene = /** @class */ (function (_super) {
         plane4Img.on('pointerup', function () {
             _this.text.setText('The  child  of  the  powerful  Uranus  is  ready!');
             CST_1.CST.STATE.PLANE = plane4Img.texture.key;
-            console.log(CST_1.CST.STATE.PLANE);
         });
         var back5 = this.add.rectangle(this.game.renderer.width * 4 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -1727,7 +1944,6 @@ var OptionsScene = /** @class */ (function (_super) {
         plane5Img.on('pointerup', function () {
             _this.text.setText('Surf-green  serpent  takes  off  from  the  runway!');
             CST_1.CST.STATE.PLANE = plane5Img.texture.key;
-            console.log(CST_1.CST.STATE.PLANE);
         });
         var BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST_1.CST.IMAGES.BUTTON)
             .setScale(3);
@@ -1761,6 +1977,52 @@ var OptionsScene = /** @class */ (function (_super) {
     return OptionsScene;
 }(Phaser.Scene));
 exports.OptionsScene = OptionsScene;
+
+
+/***/ }),
+
+/***/ "./src/scenes/PauseScene.ts":
+/*!**********************************!*\
+  !*** ./src/scenes/PauseScene.ts ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PauseScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var PauseScene = /** @class */ (function (_super) {
+    __extends(PauseScene, _super);
+    function PauseScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.PAUSESCENE
+        }) || this;
+    }
+    PauseScene.prototype.create = function () {
+        var _this = this;
+        this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
+            .setOrigin(0).setDepth(1).setScale(2);
+        this.input.keyboard.on('keydown-ESC', function () {
+            //@ts-ignore
+            _this.scene.get(CST_1.CST.SCENES.GAME).ContinuePlay();
+        });
+    };
+    return PauseScene;
+}(Phaser.Scene));
+exports.PauseScene = PauseScene;
 
 
 /***/ })

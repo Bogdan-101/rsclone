@@ -51,7 +51,7 @@ export class MenuScene extends Phaser.Scene{
 
                     this.player.anims.play('turn');
                 }
-                else if (this.cursors.down.isDown)
+            else if (this.cursors.down.isDown)
                 {
                     if (this.player.y < this.game.renderer.height * 3 / 4)
                         this.player.setVelocityY(160);
@@ -121,7 +121,7 @@ export class MenuScene extends Phaser.Scene{
         this.sound.volume = 1;
         this.sound.play(CST.AUDIO.MAINIMENU, {
             loop: true,
-            volume: +CST.STATE.AUDIO
+            volume: +CST.STATE.MUSIC
         });
 
         this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST.SPRITE.PLANE)
@@ -136,18 +136,18 @@ export class MenuScene extends Phaser.Scene{
 
         const mainText = this.make.text({
             x: this.game.renderer.width / 2 - 200 ,
-            y: this.game.renderer.height / 2 - 200,
+            y: 50,
             text: 'AIRBORNE',
             style: {
                 fontFamily: 'arcadeFont',
                 fontSize: '82px',
                 color: '#000000'
             }
-        }).setDepth(1);
+        }).setDepth(1).setOrigin(0);
 
         const helpText = this.make.text({
-            x: this.game.renderer.width - 220,
-            y: 50,
+            x: this.game.renderer.width - 25,
+            y: 25,
             text: 'Press \'H\' to show control keys and to toggle learning mode',
             style: {
                 fontFamily: 'arcadeFont',
@@ -155,11 +155,11 @@ export class MenuScene extends Phaser.Scene{
                 color: '#000000',
                 wordWrap: { width: 200 }
             }
-        }).setDepth(1);
+        }).setDepth(1).setOrigin(1, 0);
 
         const hintsText = this.make.text({
-            x: this.game.renderer.width - 220,
-            y: 150,
+            x: this.game.renderer.width - 10,
+            y: 125,
             text: 'Use arrows to navigate your ship, space to shoot',
             style: {
                 fontFamily: 'arcadeFont',
@@ -167,7 +167,7 @@ export class MenuScene extends Phaser.Scene{
                 color: '#000000',
                 wordWrap: { width: 200 }
             }
-        }).setDepth(1).setVisible(false);
+        }).setDepth(1).setVisible(false).setOrigin(1, 0);
 
         this.input.keyboard.on('keydown-H', () => {
             hintsText.setVisible(!hintsText.visible);
@@ -188,10 +188,10 @@ export class MenuScene extends Phaser.Scene{
         this.cameras.main.backgroundColor.setTo(234, 234, 234);
         const background = this.add.image(0, -100, CST.IMAGES.SKY1).setOrigin(0).setScale(2.1621621621621623);
 
-        const playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const playImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 - 80, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const playText = this.make.text({
             x: this.game.renderer.width / 2 + 175,
-            y: this.game.renderer.height / 2 + 42,
+            y: this.game.renderer.height / 2 - 38,
             text: 'Play',
             style: {
                 fontFamily: 'arcadeFont',
@@ -239,11 +239,11 @@ export class MenuScene extends Phaser.Scene{
             });
         });
 
-        const optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 100, CST.IMAGES.BUTTON)
+        const optionsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 20, CST.IMAGES.BUTTON)
             .setOrigin(0).setScale(3);
         const optionsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
-            y: this.game.renderer.height / 2 + 142,
+            y: this.game.renderer.height / 2 + 62,
             text: 'Options',
             style: {
                 fontFamily: 'arcadeFont',
@@ -274,10 +274,10 @@ export class MenuScene extends Phaser.Scene{
             });
         });
 
-        const creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 200, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
+        const creditsImg = this.add.image(this.game.renderer.width / 2 + 100, this.game.renderer.height / 2 + 120, CST.IMAGES.BUTTON).setOrigin(0).setScale(3);
         const creditsText = this.make.text({
             x: this.game.renderer.width / 2 + 160,
-            y: this.game.renderer.height / 2 + 242,
+            y: this.game.renderer.height / 2 + 162,
             text: 'Credits',
             style: {
                 fontFamily: 'arcadeFont',
