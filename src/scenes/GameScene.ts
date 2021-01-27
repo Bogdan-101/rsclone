@@ -218,7 +218,7 @@ export class GameScene extends Phaser.Scene{
         }
 
         this.enemies.children.each((child) => {
-			const enemy = child as unknown as IEnemy
+			const enemy = child as unknown as IEnemy;
 			enemy.setTarget(this.player.player!)
 		})
 

@@ -109,18 +109,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 		const rotation = Phaser.Math.Angle.Between(x, y, tx, ty);
   this.setRotation(rotation - 1.575);
 
-  if ((t > this.lastFired && this.scene.registry.get('health') !== 0) || typeof(this.lastFired) === 'undefined') {
+    //@ts-ignore
+  if ((t > this.lastFired && this.scene.isPaused !== true) || typeof(this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
             const rocket = this.rockets.create(x, y + 10, CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
             rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
             rocket.setAcceleration(0, 10);
-            // this.scene.time.addEvent({
-            //     loop: false,
-            //     callback: () => {
-            //         rocket.destroy();
-            //     },
-            //     delay: 3000
-            // })
             this.rockets.children.each((rocketInstance) => {
                 const rocket = rocketInstance as Phaser.GameObjects.Sprite;
                 if (rocket.y > this.scene.game.renderer.height)

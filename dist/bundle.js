@@ -215,18 +215,12 @@ var Enemy = /** @class */ (function (_super) {
         var y = this.y;
         var rotation = Phaser.Math.Angle.Between(x, y, tx, ty);
         this.setRotation(rotation - 1.575);
-        if ((t > this.lastFired && this.scene.registry.get('health') !== 0) || typeof (this.lastFired) === 'undefined') {
+        //@ts-ignore
+        if ((t > this.lastFired && this.scene.isPaused !== true) || typeof (this.lastFired) === 'undefined') {
             this.lastFired = t + 1500;
             var rocket = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
             rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
             rocket.setAcceleration(0, 10);
-            // this.scene.time.addEvent({
-            //     loop: false,
-            //     callback: () => {
-            //         rocket.destroy();
-            //     },
-            //     delay: 3000
-            // })
             this.rockets.children.each(function (rocketInstance) {
                 var rocket = rocketInstance;
                 if (rocket.y > _this.scene.game.renderer.height)
