@@ -9,14 +9,13 @@ export class GameScene extends Phaser.Scene{
         super({
             key: CST.SCENES.GAME
         })
-        this.isPaused = false;
     }
 
     private player!: Hero;
     private background!: Phaser.GameObjects.TileSprite;
     private lastSpawned!: number;
     private enemies!: Phaser.GameObjects.Group;
-    public isPaused: boolean;
+    public isPaused!: boolean;
     preload(){
         this.registry.set('score', 0);
 
@@ -194,6 +193,7 @@ export class GameScene extends Phaser.Scene{
     }
 
     create(){
+        this.isPaused = false;
         this.scene.launch(CST.SCENES.MUSICSCENE);
         this.scene.launch(CST.SCENES.HUDSCENE);
         this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, SETTINGS.STATE.PLANE);

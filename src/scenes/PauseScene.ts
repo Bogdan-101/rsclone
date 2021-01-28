@@ -117,6 +117,59 @@ export class PauseScene extends Phaser.Scene{
                 loop: false
             });
         });
+
+        const restartButton = this.add.image(this.game.renderer.width / 4 - 50, this.game.renderer.height - 50, CST.IMAGES.RESTART)
+            .setDepth(5).setScale(2.5);
+
+        restartButton.setInteractive();
+
+        restartButton.on('pointerup', () => {
+            restartButton.setScale(2.75);
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    restartButton.setScale(2.5);
+                },
+                loop: false
+            });
+            this.time.addEvent({
+                delay: 200,
+                callback: () => {
+                    //@ts-ignore
+                    this.scene.get(CST.SCENES.GAME).ContinuePlay();
+                    //@ts-ignore
+                    this.scene.get(CST.SCENES.GAME).RestartGame();
+                },
+                loop: false
+            });
+        });
+
+        const homeButton = this.add.image(this.game.renderer.width * 3 / 4 + 50, this.game.renderer.height - 50, CST.IMAGES.HOME)
+            .setDepth(6).setScale(2.5);
+
+        homeButton.setInteractive();
+
+        homeButton.on('pointerup', () => {
+            homeButton.setScale(2.75);
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    homeButton.setScale(2.5);
+                },
+                loop: false
+            });
+            this.time.addEvent({
+                delay: 200,
+                callback: () => {
+                    this.scene.stop();
+                    this.scene.stop(CST.SCENES.HUDSCENE);
+                    //@ts-ignore
+                    this.scene.get(CST.SCENES.GAME).GoHome();
+                },
+                loop: false
+            });
+        });
+
         this.input.keyboard.on('keydown-ESC', () => {
             //@ts-ignore
             this.scene.get(CST.SCENES.MUSICSCENE).ContinueMusic();

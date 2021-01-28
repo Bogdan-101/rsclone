@@ -324,7 +324,6 @@ var Hero = /** @class */ (function (_super) {
     }
     Hero.prototype.Hit = function () {
         var _this = this;
-        return this.health;
         if (this.isDestroyable) {
             this.health--;
             this.isDestroyable = false;
@@ -756,11 +755,9 @@ var HeroPlane_1 = __importDefault(__webpack_require__(/*! ../planes/HeroPlane */
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        var _this = _super.call(this, {
+        return _super.call(this, {
             key: CST_1.CST.SCENES.GAME
         }) || this;
-        _this.isPaused = false;
-        return _this;
     }
     GameScene.prototype.preload = function () {
         this.registry.set('score', 0);
@@ -921,6 +918,7 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         var _this = this;
+        this.isPaused = false;
         this.scene.launch(CST_1.CST.SCENES.MUSICSCENE);
         this.scene.launch(CST_1.CST.SCENES.HUDSCENE);
         this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, SETTINGS_1.SETTINGS.STATE.PLANE);
@@ -2277,6 +2275,52 @@ var PauseScene = /** @class */ (function (_super) {
                     _this.scene.get(CST_1.CST.SCENES.MUSICSCENE).ContinueMusic();
                     //@ts-ignore
                     _this.scene.get(CST_1.CST.SCENES.GAME).ContinuePlay();
+                },
+                loop: false
+            });
+        });
+        var restartButton = this.add.image(this.game.renderer.width / 4 - 50, this.game.renderer.height - 50, CST_1.CST.IMAGES.RESTART)
+            .setDepth(5).setScale(2.5);
+        restartButton.setInteractive();
+        restartButton.on('pointerup', function () {
+            restartButton.setScale(2.75);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    restartButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).ContinuePlay();
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).RestartGame();
+                },
+                loop: false
+            });
+        });
+        var homeButton = this.add.image(this.game.renderer.width * 3 / 4 + 50, this.game.renderer.height - 50, CST_1.CST.IMAGES.HOME)
+            .setDepth(6).setScale(2.5);
+        homeButton.setInteractive();
+        homeButton.on('pointerup', function () {
+            homeButton.setScale(2.75);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    homeButton.setScale(2.5);
+                },
+                loop: false
+            });
+            _this.time.addEvent({
+                delay: 200,
+                callback: function () {
+                    _this.scene.stop();
+                    _this.scene.stop(CST_1.CST.SCENES.HUDSCENE);
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).GoHome();
                 },
                 loop: false
             });
