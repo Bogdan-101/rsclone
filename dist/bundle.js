@@ -324,6 +324,7 @@ var Hero = /** @class */ (function (_super) {
     }
     Hero.prototype.Hit = function () {
         var _this = this;
+        return this.health;
         if (this.isDestroyable) {
             this.health--;
             this.isDestroyable = false;
@@ -1760,7 +1761,7 @@ var MusicScene = /** @class */ (function (_super) {
                 .setOrigin(0);
             var musicText_1 = this.make.text({
                 x: -200,
-                y: 30,
+                y: 25,
                 text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
                 style: {
                     fontFamily: 'Courier',
@@ -1813,7 +1814,7 @@ var MusicScene = /** @class */ (function (_super) {
     };
     MusicScene.prototype.update = function () {
         var _this = this;
-        if (+SETTINGS_1.SETTINGS.STATE.MUSIC !== 0 && +SETTINGS_1.SETTINGS.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
+        if (+SETTINGS_1.SETTINGS.STATE.MUSIC !== 0 && !this.music.isPlaying && !this.scene.isActive(CST_1.CST.SCENES.PAUSESCENE)) {
             var rand = Phaser.Math.Between(1, 5);
             while (rand === this.musicIndex)
                 rand = Phaser.Math.Between(1, 5);
@@ -1858,7 +1859,7 @@ var MusicScene = /** @class */ (function (_super) {
                 .setOrigin(0);
             var musicText_2 = this.make.text({
                 x: -200,
-                y: 10,
+                y: 25,
                 text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
                 style: {
                     fontFamily: 'Courier',

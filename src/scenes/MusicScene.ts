@@ -69,7 +69,7 @@ export class MusicScene extends Phaser.Scene{
 
             const musicText = this.make.text({
                 x: -200,
-                y: 30,
+                y: 25 ,
                 text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
                 style: {
                     fontFamily: 'Courier',
@@ -125,7 +125,7 @@ export class MusicScene extends Phaser.Scene{
     }
 
     update() {
-        if (+SETTINGS.STATE.MUSIC !== 0 && +SETTINGS.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
+        if (+SETTINGS.STATE.MUSIC !== 0 && !this.music.isPlaying && !this.scene.isActive(CST.SCENES.PAUSESCENE)) {
             let rand = Phaser.Math.Between(1, 5);
             while (rand === this.musicIndex)
                 rand = Phaser.Math.Between(1, 5);
@@ -173,7 +173,7 @@ export class MusicScene extends Phaser.Scene{
 
             const musicText = this.make.text({
                 x: -200,
-                y: 10,
+                y: 25,
                 text: `Now playing:\n${this.music.key.slice(0, this.music.key.length - 4)}`,
                 style: {
                     fontFamily: 'Courier',
