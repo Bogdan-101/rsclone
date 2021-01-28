@@ -36,7 +36,8 @@ exports.CST = {
         HOME: "Home.png",
         HPBACK: "HPBack.png",
         ARROWBUTTON: "ArrowButton.png",
-        SCORE: "Score.png"
+        SCORE: "Score.png",
+        PAUSEIMG: "NightPauseImage.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -44,6 +45,7 @@ exports.CST = {
         MUSIC1: "Суперюность - Ночь.mp3",
         MUSIC2: "Суперюность - Погоня.mp3",
         MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
+        MUSIC4: "Суперюность - Космическая битва.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
@@ -851,9 +853,11 @@ var GameScene = /** @class */ (function (_super) {
         this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE)
             .setDepth(-3).setOrigin(0).setScale(3.125);
         this.input.keyboard.on('keydown-ESC', function () {
-            _this.physics.pause();
-            _this.isPaused = true;
-            _this.scene.launch(CST_1.CST.SCENES.PAUSESCENE);
+            if (!_this.scene.isActive(CST_1.CST.SCENES.PAUSESCENE)) {
+                _this.physics.pause();
+                _this.isPaused = true;
+                _this.scene.launch(CST_1.CST.SCENES.PAUSESCENE);
+            }
         });
     };
     GameScene.prototype.ContinuePlay = function () {
@@ -1601,10 +1605,16 @@ var MusicScene = /** @class */ (function (_super) {
     MusicScene.prototype.DieMusic = function () {
         this.sound.volume = 0.1;
     };
+    MusicScene.prototype.PauseMusic = function () {
+        this.music.pause();
+    };
+    MusicScene.prototype.ContinueMusic = function () {
+        this.music.resume();
+    };
     MusicScene.prototype.create = function () {
         var _this = this;
         if (+CST_1.CST.STATE.MUSIC >= 0.1) {
-            var rand = Phaser.Math.Between(1, 3);
+            var rand = Phaser.Math.Between(1, 4);
             switch (rand) {
                 case 1: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
@@ -1618,6 +1628,11 @@ var MusicScene = /** @class */ (function (_super) {
                 }
                 case 3: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 4: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
@@ -1668,10 +1683,10 @@ var MusicScene = /** @class */ (function (_super) {
     };
     MusicScene.prototype.update = function () {
         var _this = this;
-        if (+CST_1.CST.STATE.MUSIC !== 0 && +CST_1.CST.STATE.EFFECTS !== 0 && !this.music.isPlaying) {
-            var rand = Phaser.Math.Between(1, 3);
+        if (+CST_1.CST.STATE.MUSIC !== 0 && +CST_1.CST.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
+            var rand = Phaser.Math.Between(1, 4);
             while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 3);
+                rand = Phaser.Math.Between(1, 4);
             switch (rand) {
                 case 1: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
@@ -1685,6 +1700,11 @@ var MusicScene = /** @class */ (function (_super) {
                 }
                 case 3: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 4: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
@@ -2005,14 +2025,113 @@ var PauseScene = /** @class */ (function (_super) {
             key: CST_1.CST.SCENES.PAUSESCENE
         }) || this;
     }
+    PauseScene.prototype.preload = function () {
+        this.quotes = [
+            ['I heard an airplane passing overhead. I wished I was on it.',
+                'Charles Bukowski'],
+            ['And like no other sculpture in the history of art, the dead engine and dead airframe come to life at the touch of a human hand, and join their life with the pilot\'s own.',
+                'Richard Bach, A Gift Of Wings'],
+            ['We are in the process of finding out what filling the sky with hundreds of thousands of satellites does to all life on Earth.',
+                'Steven Magee'],
+            ['There\'s only one job in this world that gives you an office in the sky; and that is pilot.',
+                'Mohith Agadi'],
+            ['Planes will never have the final, perfect model because their idea is all about the infinity.',
+                'Talismanist Giebra, Talismanist: Fragments of the Ancient Fire. Philosophy of Fragmentism Series.'],
+            ['But remember this, Japanese boy... airplanes are not tools for war. They are not for making money. Airplanes are beautiful dreams. Engineers turn dreams into reality.',
+                'Hayao Miyazaki, The Wind Rises'],
+        ];
+    };
+    PauseScene.prototype.update = function () {
+        this.background.tilePositionX += 0.15;
+    };
     PauseScene.prototype.create = function () {
         var _this = this;
         this.add.rectangle(0, 0, this.renderer.width, this.renderer.height, 0x000000, 0.6)
             .setOrigin(0).setDepth(1).setScale(2);
+        this.background = this.add.tileSprite(this.game.renderer.width / 2, this.game.renderer.height / 2 - 100, 0, 0, CST_1.CST.IMAGES.PAUSEIMG)
+            .setDepth(2).setScale(0.5);
+        this.make.text({
+            x: this.game.renderer.width / 2 + 120,
+            y: this.game.renderer.height / 4 - 100,
+            text: 'PAUSE',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '80px',
+                color: '#ffffff'
+            }
+        }).setDepth(3);
+        var randNum = Phaser.Math.Between(0, this.quotes.length - 1);
+        var QuoteText = this.make.text({
+            x: this.game.renderer.width / 10,
+            y: this.game.renderer.height * 3 / 4 - 80,
+            text: this.quotes[randNum][0],
+            style: {
+                fontFamily: 'Courier',
+                fontSize: '20px',
+                color: '#ffffff',
+                wordWrap: { width: 600 }
+            }
+        }).setDepth(3);
+        var QuoteAuthor = this.make.text({
+            x: this.game.renderer.width / 10,
+            y: this.game.renderer.height * 3 / 4 - 80,
+            text: this.quotes[randNum][1],
+            style: {
+                fontFamily: 'Courier',
+                fontSize: '20px',
+                color: '#ffffff',
+                wordWrap: { width: 600 }
+            }
+        }).setDepth(3).setVisible(false);
+        QuoteText.setInteractive();
+        QuoteAuthor.setInteractive();
+        QuoteText.on('pointerover', function () {
+            QuoteAuthor.setVisible(true);
+            QuoteText.setVisible(false);
+        });
+        QuoteAuthor.on('pointerout', function () {
+            QuoteText.setVisible(true);
+            QuoteAuthor.setVisible(false);
+        });
+        var BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST_1.CST.IMAGES.BUTTON)
+            .setScale(3).setDepth(3);
+        var BackText = this.make.text({
+            x: this.game.renderer.width / 2 - 30,
+            y: this.game.renderer.height - 57,
+            text: 'Resume',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '20px',
+                color: '#000000'
+            }
+        }).setDepth(3);
+        BackImg.setInteractive();
+        BackImg.on('pointerup', function () {
+            BackImg.setScale(3.25);
+            BackText.setScale(1.08333);
+            BackText.setX(BackText.x + 5);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    BackImg.setScale(3);
+                    BackText.setScale(1);
+                    BackText.setX(BackText.x - 5);
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.MUSICSCENE).ContinueMusic();
+                    //@ts-ignore
+                    _this.scene.get(CST_1.CST.SCENES.GAME).ContinuePlay();
+                },
+                loop: false
+            });
+        });
         this.input.keyboard.on('keydown-ESC', function () {
+            //@ts-ignore
+            _this.scene.get(CST_1.CST.SCENES.MUSICSCENE).ContinueMusic();
             //@ts-ignore
             _this.scene.get(CST_1.CST.SCENES.GAME).ContinuePlay();
         });
+        //@ts-ignore
+        this.scene.get(CST_1.CST.SCENES.MUSICSCENE).PauseMusic();
     };
     return PauseScene;
 }(Phaser.Scene));

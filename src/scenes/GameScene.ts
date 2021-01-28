@@ -226,10 +226,11 @@ export class GameScene extends Phaser.Scene{
             .setDepth(-3).setOrigin(0).setScale(3.125);
 
         this.input.keyboard.on('keydown-ESC', () => {
-            this.physics.pause();
-            this.isPaused = true;
-            this.scene.launch(CST.SCENES.PAUSESCENE);
-            
+            if (!this.scene.isActive(CST.SCENES.PAUSESCENE)) {
+                this.physics.pause();
+                this.isPaused = true;
+                this.scene.launch(CST.SCENES.PAUSESCENE);
+            }
         });
     }
 

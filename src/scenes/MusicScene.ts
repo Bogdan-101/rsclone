@@ -9,13 +9,21 @@ export class MusicScene extends Phaser.Scene{
         })
     }
 
-    DieMusic() {
+    DieMusic(): void {
         this.sound.volume = 0.1;
+    }
+
+    PauseMusic(): void {
+        this.music.pause();
+    }
+
+    ContinueMusic(): void {
+        this.music.resume();
     }
 
     create() {
         if (+CST.STATE.MUSIC >= 0.1) {
-            const rand = Phaser.Math.Between(1, 3);
+            const rand = Phaser.Math.Between(1, 4);
 
             switch (rand) {
                 case 1: {
@@ -30,6 +38,11 @@ export class MusicScene extends Phaser.Scene{
                 }
                 case 3: {
                     this.music = this.sound.add(CST.AUDIO.MUSIC3, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 4: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC4, { volume: +CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
@@ -83,10 +96,10 @@ export class MusicScene extends Phaser.Scene{
     }
 
     update() {
-        if (+CST.STATE.MUSIC !== 0 && +CST.STATE.EFFECTS !== 0 && !this.music.isPlaying) {
-            let rand = Phaser.Math.Between(1, 3);
+        if (+CST.STATE.MUSIC !== 0 && +CST.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
+            let rand = Phaser.Math.Between(1, 4);
             while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 3);
+                rand = Phaser.Math.Between(1, 4);
 
             switch (rand) {
                 case 1: {
@@ -101,6 +114,11 @@ export class MusicScene extends Phaser.Scene{
                 }
                 case 3: {
                     this.music = this.sound.add(CST.AUDIO.MUSIC3, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 4: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC4, { volume: +CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }

@@ -23,7 +23,8 @@ export let CST = {
         HOME: "Home.png",
         HPBACK: "HPBack.png",
         ARROWBUTTON: "ArrowButton.png",
-        SCORE: "Score.png"
+        SCORE: "Score.png",
+        PAUSEIMG: "NightPauseImage.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -31,6 +32,7 @@ export let CST = {
         MUSIC1: "Суперюность - Ночь.mp3",
         MUSIC2: "Суперюность - Погоня.mp3",
         MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
+        MUSIC4: "Суперюность - Космическая битва.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
