@@ -242,9 +242,9 @@ var Enemy = /** @class */ (function (_super) {
         this.setRotation(rotation - 1.575);
         //@ts-ignore
         if ((t > this.lastFired && this.scene.isPaused !== true) || typeof (this.lastFired) === 'undefined') {
-            this.lastFired = t + 1500;
+            this.lastFired = t + 2500 - (500 * +SETTINGS_1.SETTINGS.STATE.DIFFICULTY);
             var rocket = this.rockets.create(x, y + 10, CST_1.CST.IMAGES.ENEMYBULLET).setRotation(rotation - 1.575);
-            rocket.setVelocity(-Math.sin(rocket.rotation) * 200, Math.cos(rocket.rotation) * 200);
+            rocket.setVelocity(-Math.sin(rocket.rotation) * 100 * +SETTINGS_1.SETTINGS.STATE.DIFFICULTY, Math.cos(rocket.rotation) * 100 * +SETTINGS_1.SETTINGS.STATE.DIFFICULTY);
             rocket.setAcceleration(0, 10);
             this.rockets.children.each(function (rocketInstance) {
                 var rocket = rocketInstance;
@@ -845,7 +845,7 @@ var GameScene = /** @class */ (function (_super) {
         if (this.player.health !== 0 && this.isPaused !== true) {
             this.background.tilePositionY -= 0.5;
             if (time > this.lastSpawned) {
-                this.lastSpawned = time + 1000;
+                this.lastSpawned = time + 3500 - (1000 * +SETTINGS_1.SETTINGS.STATE.DIFFICULTY);
                 var enemy_1 = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST_1.CST.SPRITE.ENEMYATLAS);
                 enemy_1.init(this.player.player, this);
                 this.tweens.add({
@@ -1957,7 +1957,7 @@ var OptionsScene = /** @class */ (function (_super) {
             }
         });
         this.musicText = this.make.text({
-            x: this.game.renderer.width - 220,
+            x: this.game.renderer.width / 2 - 70,
             y: this.game.renderer.height / 2 - 120,
             text: '',
             style: {
@@ -1976,8 +1976,18 @@ var OptionsScene = /** @class */ (function (_super) {
                 color: '#fff'
             }
         });
+        this.difficultyText = this.make.text({
+            x: this.game.renderer.width / 2 + 200,
+            y: this.game.renderer.height / 2 - 120,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
         this.make.text({
-            x: this.game.renderer.width - 250,
+            x: this.game.renderer.width / 2 - 100,
             y: this.game.renderer.height / 2 - 170,
             text: 'Music:',
             style: {
@@ -1996,16 +2006,32 @@ var OptionsScene = /** @class */ (function (_super) {
                 color: '#fff'
             }
         });
+        this.make.text({
+            x: this.game.renderer.width / 2 + 150,
+            y: this.game.renderer.height / 2 - 170,
+            text: 'Difficulty:',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
     };
     OptionsScene.prototype.update = function () {
         this.musicText.setText(SETTINGS_1.SETTINGS.STATE.MUSIC.slice(0, 3));
         this.effectsText.setText(SETTINGS_1.SETTINGS.STATE.EFFECTS.slice(0, 3));
+        if (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY === 1)
+            this.difficultyText.setText('Easy');
+        else if (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY === 2)
+            this.difficultyText.setText('Medium');
+        else if (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY === 3)
+            this.difficultyText.setText('Hard');
     };
     OptionsScene.prototype.create = function () {
         var _this = this;
-        var upMusic = this.add.image(this.game.renderer.width - 150, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
+        var upMusic = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setOrigin(0);
-        var downMusic = this.add.image(this.game.renderer.width - 150 + 19, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
+        var downMusic = this.add.image(this.game.renderer.width / 2 + 19, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setRotation(3.1415926538);
         upMusic.setInteractive();
         upMusic.on('pointerup', function () {
@@ -2038,6 +2064,24 @@ var OptionsScene = /** @class */ (function (_super) {
                 SETTINGS_1.SETTINGS.STATE.EFFECTS = (+SETTINGS_1.SETTINGS.STATE.EFFECTS - 0.1).toString();
             else
                 SETTINGS_1.SETTINGS.STATE.EFFECTS = '0';
+        });
+        var upDiff = this.add.image(this.game.renderer.width / 2 + 310, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setOrigin(0);
+        var downDiff = this.add.image(this.game.renderer.width / 2 + 19 + 310, this.game.renderer.height / 2 - 115 + 23, CST_1.CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setRotation(3.1415926538);
+        upDiff.setInteractive();
+        upDiff.on('pointerup', function () {
+            if (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY + 1 < 3)
+                SETTINGS_1.SETTINGS.STATE.DIFFICULTY = (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY + 1).toString();
+            else
+                SETTINGS_1.SETTINGS.STATE.DIFFICULTY = '3';
+        });
+        downDiff.setInteractive();
+        downDiff.on('pointerup', function () {
+            if (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY - 1 > 1)
+                SETTINGS_1.SETTINGS.STATE.DIFFICULTY = (+SETTINGS_1.SETTINGS.STATE.DIFFICULTY - 1).toString();
+            else
+                SETTINGS_1.SETTINGS.STATE.DIFFICULTY = '1';
         });
         var plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE)
             .setFrame(1).setOrigin(0).setScale(2).setDepth(2);

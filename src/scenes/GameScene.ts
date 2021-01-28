@@ -112,7 +112,7 @@ export class GameScene extends Phaser.Scene{
             this.background.tilePositionY -= 0.5;
 
             if (time > this.lastSpawned) {
-                this.lastSpawned = time + 1000;
+                this.lastSpawned = time + 3500 - (1000 * +SETTINGS.STATE.DIFFICULTY);
                 const enemy = this.enemies.get(Phaser.Math.Between(100, 700), -50, CST.SPRITE.ENEMYATLAS);
                 enemy.init(this.player.player, this);
                 this.tweens.add({

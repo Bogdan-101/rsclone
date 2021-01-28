@@ -6,6 +6,7 @@ export class OptionsScene extends Phaser.Scene{
     private text!: Phaser.GameObjects.Text;
     private musicText!: Phaser.GameObjects.Text;
     private effectsText!: Phaser.GameObjects.Text;
+    private difficultyText!: Phaser.GameObjects.Text;
     constructor(){
         super({
             key: CST.SCENES.OPTIONSSCENE
@@ -25,7 +26,7 @@ export class OptionsScene extends Phaser.Scene{
         });
 
         this.musicText = this.make.text({
-            x: this.game.renderer.width - 220,
+            x: this.game.renderer.width / 2 - 70,
             y: this.game.renderer.height / 2 - 120,
             text: '',
             style: {
@@ -46,8 +47,19 @@ export class OptionsScene extends Phaser.Scene{
             }
         });
 
+        this.difficultyText = this.make.text({
+            x: this.game.renderer.width / 2 + 200,
+            y: this.game.renderer.height / 2 - 120,
+            text: '',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
+
         this.make.text({
-            x: this.game.renderer.width - 250,
+            x: this.game.renderer.width / 2 - 100,
             y: this.game.renderer.height / 2 - 170,
             text: 'Music:',
             style: {
@@ -67,17 +79,35 @@ export class OptionsScene extends Phaser.Scene{
                 color: '#fff'
             }
         });
+
+        this.make.text({
+            x: this.game.renderer.width / 2 + 150,
+            y: this.game.renderer.height / 2 - 170,
+            text: 'Difficulty:',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '26px',
+                color: '#fff'
+            }
+        });
     }
 
     update(){
         this.musicText.setText(SETTINGS.STATE.MUSIC.slice(0, 3));
         this.effectsText.setText(SETTINGS.STATE.EFFECTS.slice(0, 3));
+
+        if (+SETTINGS.STATE.DIFFICULTY === 1)
+            this.difficultyText.setText('Easy');
+        else if (+SETTINGS.STATE.DIFFICULTY === 2)
+        this.difficultyText.setText('Medium');
+        else if (+SETTINGS.STATE.DIFFICULTY === 3)
+        this.difficultyText.setText('Hard');
     }
 
     create(){
-        const upMusic = this.add.image(this.game.renderer.width - 150, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
+        const upMusic = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setOrigin(0);
-        const downMusic = this.add.image(this.game.renderer.width - 150 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
+        const downMusic = this.add.image(this.game.renderer.width / 2 + 19, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setRotation(3.1415926538);
 
         upMusic.setInteractive();
@@ -119,6 +149,29 @@ export class OptionsScene extends Phaser.Scene{
                 SETTINGS.STATE.EFFECTS = (+SETTINGS.STATE.EFFECTS - 0.1).toString();
             else
                 SETTINGS.STATE.EFFECTS = '0';
+        });
+
+        const upDiff = this.add.image(this.game.renderer.width / 2 + 310, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setOrigin(0);
+        const downDiff = this.add.image(this.game.renderer.width / 2 + 19 + 310, this.game.renderer.height / 2 - 115 + 23, CST.IMAGES.ARROWBUTTON)
+            .setScale(0.25).setRotation(3.1415926538);
+
+        upDiff.setInteractive();
+
+        upDiff.on('pointerup', () => {
+            if (+SETTINGS.STATE.DIFFICULTY + 1 < 3)
+                SETTINGS.STATE.DIFFICULTY = (+SETTINGS.STATE.DIFFICULTY + 1).toString();
+            else
+                SETTINGS.STATE.DIFFICULTY = '3';
+        });
+
+        downDiff.setInteractive();
+
+        downDiff.on('pointerup', () => {
+            if (+SETTINGS.STATE.DIFFICULTY - 1 > 1)
+                SETTINGS.STATE.DIFFICULTY = (+SETTINGS.STATE.DIFFICULTY - 1).toString();
+            else
+                SETTINGS.STATE.DIFFICULTY = '1';
         });
 
         const plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST.SPRITE.PLANE)
