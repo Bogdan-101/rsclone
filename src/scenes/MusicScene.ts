@@ -23,7 +23,7 @@ export class MusicScene extends Phaser.Scene{
 
     create() {
         if (+CST.STATE.MUSIC >= 0.1) {
-            const rand = Phaser.Math.Between(1, 4);
+            const rand = Phaser.Math.Between(1, 6);
 
             switch (rand) {
                 case 1: {
@@ -43,6 +43,16 @@ export class MusicScene extends Phaser.Scene{
                 }
                 case 4: {
                     this.music = this.sound.add(CST.AUDIO.MUSIC4, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 5: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC5, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 6: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC6, { volume: +CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
@@ -97,9 +107,9 @@ export class MusicScene extends Phaser.Scene{
 
     update() {
         if (+CST.STATE.MUSIC !== 0 && +CST.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
-            let rand = Phaser.Math.Between(1, 4);
+            let rand = Phaser.Math.Between(1, 5);
             while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 4);
+                rand = Phaser.Math.Between(1, 5);
 
             switch (rand) {
                 case 1: {
@@ -119,6 +129,16 @@ export class MusicScene extends Phaser.Scene{
                 }
                 case 4: {
                     this.music = this.sound.add(CST.AUDIO.MUSIC4, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 5: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC5, { volume: +CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 6: {
+                    this.music = this.sound.add(CST.AUDIO.MUSIC6, { volume: +CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }

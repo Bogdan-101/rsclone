@@ -46,6 +46,8 @@ exports.CST = {
         MUSIC2: "Суперюность - Погоня.mp3",
         MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
         MUSIC4: "Суперюность - Космическая битва.mp3",
+        MUSIC5: "Elektronika-60 - Moves.mp3",
+        MUSIC6: "DigitalCounty - starborn wars.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
@@ -1614,7 +1616,7 @@ var MusicScene = /** @class */ (function (_super) {
     MusicScene.prototype.create = function () {
         var _this = this;
         if (+CST_1.CST.STATE.MUSIC >= 0.1) {
-            var rand = Phaser.Math.Between(1, 4);
+            var rand = Phaser.Math.Between(1, 6);
             switch (rand) {
                 case 1: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
@@ -1633,6 +1635,16 @@ var MusicScene = /** @class */ (function (_super) {
                 }
                 case 4: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 5: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 6: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +CST_1.CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
@@ -1684,9 +1696,9 @@ var MusicScene = /** @class */ (function (_super) {
     MusicScene.prototype.update = function () {
         var _this = this;
         if (+CST_1.CST.STATE.MUSIC !== 0 && +CST_1.CST.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
-            var rand = Phaser.Math.Between(1, 4);
+            var rand = Phaser.Math.Between(1, 5);
             while (rand === this.musicIndex)
-                rand = Phaser.Math.Between(1, 4);
+                rand = Phaser.Math.Between(1, 5);
             switch (rand) {
                 case 1: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
@@ -1705,6 +1717,16 @@ var MusicScene = /** @class */ (function (_super) {
                 }
                 case 4: {
                     this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 5: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music.play();
+                    break;
+                }
+                case 6: {
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +CST_1.CST.STATE.MUSIC });
                     this.music.play();
                     break;
                 }

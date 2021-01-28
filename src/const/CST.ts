@@ -33,6 +33,8 @@ export let CST = {
         MUSIC2: "Суперюность - Погоня.mp3",
         MUSIC3: "Суперюность - Танцы в открытом космосе.mp3",
         MUSIC4: "Суперюность - Космическая битва.mp3",
+        MUSIC5: "Elektronika-60 - Moves.mp3",
+        MUSIC6: "DigitalCounty - starborn wars.mp3",
         ENEMYBLASTER: "EnemyBlaster.mp3"
     },
     SPRITE: {
