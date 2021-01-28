@@ -21,7 +21,8 @@ exports.CST = {
         OPTIONSSCENE: "OPTIONSSCENE",
         GAMEOVERSCENE: "GAMEOVERSCENE",
         MUSICSCENE: "MUSICSCENE",
-        PAUSESCENE: "PAUSESCENE"
+        PAUSESCENE: "PAUSESCENE",
+        CREDITSCENE: "CREDITSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",
@@ -90,11 +91,12 @@ var OptionsScene_1 = __webpack_require__(/*! ./scenes/OptionsScene */ "./src/sce
 var GameOverScene_1 = __webpack_require__(/*! ./scenes/GameOverScene */ "./src/scenes/GameOverScene.ts");
 var MusicScene_1 = __webpack_require__(/*! ./scenes/MusicScene */ "./src/scenes/MusicScene.ts");
 var PauseScene_1 = __webpack_require__(/*! ./scenes/PauseScene */ "./src/scenes/PauseScene.ts");
+var CreditScene_1 = __webpack_require__(/*! ./scenes/CreditScene */ "./src/scenes/CreditScene.ts");
 var game = new Phaser.Game({
     width: 800,
     height: 600,
     scene: [
-        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene, OptionsScene_1.OptionsScene, GameOverScene_1.GameOverScene, MusicScene_1.MusicScene, PauseScene_1.PauseScene
+        LoadScene_1.LoadScene, MenuScene_1.MenuScene, GameScene_1.GameScene, ChooseScene_1.ChooseScene, HUDScene_1.HUDScene, OptionsScene_1.OptionsScene, GameOverScene_1.GameOverScene, MusicScene_1.MusicScene, PauseScene_1.PauseScene, CreditScene_1.CreditScene
     ],
     render: {
         pixelArt: true
@@ -532,6 +534,81 @@ var ChooseScene = /** @class */ (function (_super) {
     return ChooseScene;
 }(Phaser.Scene));
 exports.ChooseScene = ChooseScene;
+
+
+/***/ }),
+
+/***/ "./src/scenes/CreditScene.ts":
+/*!***********************************!*\
+  !*** ./src/scenes/CreditScene.ts ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreditScene = void 0;
+var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var CreditScene = /** @class */ (function (_super) {
+    __extends(CreditScene, _super);
+    function CreditScene() {
+        return _super.call(this, {
+            key: CST_1.CST.SCENES.CREDITSCENE
+        }) || this;
+    }
+    CreditScene.prototype.create = function () {
+        var _this = this;
+        this.creditsRus = 'AIRBORNE\n Разработана Кармызовым Богданом (github.com/Bogdan-101), используя Phaser 3 и Javascript. Отдельная благодарность группам Суперюность, Электроника-60 и DigitalCounty за предоставленную музыку и Руденок Яне за помощь в создании ассетов. Огромная благодарность Rolling Scopes School за возможность обучения и все знания, плоды которых вы можете видеть тут.';
+        this.creditsEng = 'AIRBORNE\n Developed by Bogdan Karmyzow (github.com/Bogdan-101) using Phaser 3 and Javascript. Special thanks to Superyunost, Elektronika-60 and DigitalCounty for the provided music and Rudenok Yana for help in creating assets. Many thanks to Rolling Scopes School for the opportunity to study and all the knowledge, the result of which you can see here.';
+        var textRus = this.make.text({
+            x: this.game.renderer.width / 10,
+            y: this.game.renderer.height,
+            text: this.creditsRus,
+            style: {
+                fontFamily: 'Courier',
+                fontSize: '20px',
+                color: '#ffffff',
+                wordWrap: { width: 700 }
+            }
+        });
+        var line = this.add.rectangle(this.game.renderer.width / 10, this.game.renderer.height * 5 / 4 + 25, 600, 25, 0xffffff)
+            .setOrigin(0);
+        var textEng = this.make.text({
+            x: this.game.renderer.width / 10,
+            y: this.game.renderer.height * 1.4,
+            text: this.creditsEng,
+            style: {
+                fontFamily: 'Courier',
+                fontSize: '20px',
+                color: '#ffffff',
+                wordWrap: { width: 700 }
+            }
+        });
+        [textRus, line, textEng].map(function (elem) {
+            _this.tweens.add({
+                targets: elem,
+                y: elem.y - _this.game.renderer.height * 5 / 6,
+                alpha: { from: 0, to: 1 },
+                duration: 1500,
+                ease: 'Power1'
+            });
+        });
+    };
+    return CreditScene;
+}(Phaser.Scene));
+exports.CreditScene = CreditScene;
 
 
 /***/ }),
@@ -1554,6 +1631,8 @@ var MenuScene = /** @class */ (function (_super) {
                     creditsImg.setScale(3);
                     creditsText.setScale(1);
                     creditsText.setX(creditsText.x - 5);
+                    _this.sound.stopAll();
+                    _this.scene.start(CST_1.CST.SCENES.CREDITSCENE);
                 },
                 loop: false
             });

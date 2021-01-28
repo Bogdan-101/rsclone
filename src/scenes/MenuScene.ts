@@ -297,6 +297,8 @@ export class MenuScene extends Phaser.Scene{
                     creditsImg.setScale(3);
                     creditsText.setScale(1);
                     creditsText.setX(creditsText.x - 5);
+                    this.sound.stopAll();
+                    this.scene.start(CST.SCENES.CREDITSCENE);
                 },
                 loop: false
             });

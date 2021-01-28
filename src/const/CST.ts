@@ -8,7 +8,8 @@ export let CST = {
         OPTIONSSCENE: "OPTIONSSCENE",
         GAMEOVERSCENE: "GAMEOVERSCENE",
         MUSICSCENE: "MUSICSCENE",
-        PAUSESCENE: "PAUSESCENE"
+        PAUSESCENE: "PAUSESCENE",
+        CREDITSCENE: "CREDITSCENE"
     },
     IMAGES: {
         LOGO: "logo.png",

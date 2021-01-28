@@ -10,11 +10,12 @@ import { OptionsScene } from './scenes/OptionsScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { MusicScene } from './scenes/MusicScene';
 import { PauseScene } from './scenes/PauseScene';
+import { CreditScene } from './scenes/CreditScene';
 const game = new Phaser.Game({
     width: 800,
     height: 600,
     scene:[
-        LoadScene, MenuScene, GameScene, ChooseScene, HUDScene, OptionsScene, GameOverScene, MusicScene, PauseScene
+        LoadScene, MenuScene, GameScene, ChooseScene, HUDScene, OptionsScene, GameOverScene, MusicScene, PauseScene, CreditScene
     ],
     render: {
         pixelArt: true
