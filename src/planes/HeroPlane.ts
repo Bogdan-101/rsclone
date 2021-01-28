@@ -1,4 +1,5 @@
 import { CST } from '../const/CST';
+import { SETTINGS } from '../const/SETTINGS';
 
 export default class Hero extends Phaser.GameObjects.Sprite
 {
@@ -131,7 +132,7 @@ export default class Hero extends Phaser.GameObjects.Sprite
                         },
                         delay: 3000
                     })
-                    this.scene.sound.add(CST.AUDIO.BLASTER, { volume: +CST.STATE.EFFECTS * 0.5 }).play();
+                    this.scene.sound.add(CST.AUDIO.BLASTER, { volume: +SETTINGS.STATE.EFFECTS * 0.5 }).play();
                 }
         }
     }

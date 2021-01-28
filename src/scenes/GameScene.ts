@@ -1,5 +1,6 @@
 import { Game } from 'phaser';
 import { CST } from '../const/CST';
+import { SETTINGS } from '../const/SETTINGS';
 import Enemy from '../planes/Enemy'
 import Hero from '../planes/HeroPlane';
 import IEnemy from '../planes/IEnemy'
@@ -195,7 +196,7 @@ export class GameScene extends Phaser.Scene{
     create(){
         this.scene.launch(CST.SCENES.MUSICSCENE);
         this.scene.launch(CST.SCENES.HUDSCENE);
-        this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST.STATE.PLANE);
+        this.player = new Hero(this, this.game.renderer.width / 2, this.game.renderer.height - 200, SETTINGS.STATE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy, runChildUpdate: true
         })

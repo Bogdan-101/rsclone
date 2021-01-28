@@ -1,6 +1,7 @@
 import IEnemy from './IEnemy';
 import { CST } from '../const/CST';
 import Hero from '../planes/HeroPlane';
+import { SETTINGS } from '../const/SETTINGS';
 
 export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 {
@@ -121,7 +122,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
                     rocket.destroy();
             })
             if (!this.scene.sound.get(CST.AUDIO.ENEMYBLASTER))
-                this.scene.sound.play(CST.AUDIO.ENEMYBLASTER, {volume: +CST.STATE.EFFECTS * 0.09});
+                this.scene.sound.play(CST.AUDIO.ENEMYBLASTER, {volume: +SETTINGS.STATE.EFFECTS * 0.09});
         }
 
         //@ts-ignore

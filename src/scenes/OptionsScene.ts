@@ -1,4 +1,5 @@
 import { CST } from '../const/CST';
+import { SETTINGS } from '../const/SETTINGS';
 
 export class OptionsScene extends Phaser.Scene{
 
@@ -69,8 +70,8 @@ export class OptionsScene extends Phaser.Scene{
     }
 
     update(){
-        this.musicText.setText(CST.STATE.MUSIC.slice(0, 3));
-        this.effectsText.setText(CST.STATE.EFFECTS.slice(0, 3));
+        this.musicText.setText(SETTINGS.STATE.MUSIC.slice(0, 3));
+        this.effectsText.setText(SETTINGS.STATE.EFFECTS.slice(0, 3));
     }
 
     create(){
@@ -82,19 +83,19 @@ export class OptionsScene extends Phaser.Scene{
         upMusic.setInteractive();
 
         upMusic.on('pointerup', () => {
-            if (+CST.STATE.MUSIC + 0.1 <= 0.9)
-                CST.STATE.MUSIC = (+CST.STATE.MUSIC + 0.1).toString();
+            if (+SETTINGS.STATE.MUSIC + 0.1 <= 0.9)
+                SETTINGS.STATE.MUSIC = (+SETTINGS.STATE.MUSIC + 0.1).toString();
             else
-                CST.STATE.MUSIC = '1';
+                SETTINGS.STATE.MUSIC = '1';
         });
 
         downMusic.setInteractive();
 
         downMusic.on('pointerup', () => {
-            if (+CST.STATE.MUSIC - 0.1 >= 0.1)
-                CST.STATE.MUSIC = (+CST.STATE.MUSIC - 0.1).toString();
+            if (+SETTINGS.STATE.MUSIC - 0.1 >= 0.1)
+                SETTINGS.STATE.MUSIC = (+SETTINGS.STATE.MUSIC - 0.1).toString();
             else
-                CST.STATE.MUSIC = '0';
+                SETTINGS.STATE.MUSIC = '0';
         });
 
         const upEffects = this.add.image(190, this.game.renderer.height / 2 - 150, CST.IMAGES.ARROWBUTTON)
@@ -105,19 +106,19 @@ export class OptionsScene extends Phaser.Scene{
         upEffects.setInteractive();
 
         upEffects.on('pointerup', () => {
-            if (+CST.STATE.EFFECTS + 0.1 <= 0.9)
-                CST.STATE.EFFECTS = (+CST.STATE.EFFECTS + 0.1).toString();
+            if (+SETTINGS.STATE.EFFECTS + 0.1 <= 0.9)
+                SETTINGS.STATE.EFFECTS = (+SETTINGS.STATE.EFFECTS + 0.1).toString();
             else
-                CST.STATE.EFFECTS = '1';
+                SETTINGS.STATE.EFFECTS = '1';
         });
 
         downEffects.setInteractive();
 
         downEffects.on('pointerup', () => {
-            if (+CST.STATE.EFFECTS - 0.1 >= 0.1)
-                CST.STATE.EFFECTS = (+CST.STATE.EFFECTS - 0.1).toString();
+            if (+SETTINGS.STATE.EFFECTS - 0.1 >= 0.1)
+                SETTINGS.STATE.EFFECTS = (+SETTINGS.STATE.EFFECTS - 0.1).toString();
             else
-                CST.STATE.EFFECTS = '0';
+                SETTINGS.STATE.EFFECTS = '0';
         });
 
         const plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST.SPRITE.PLANE)
@@ -153,7 +154,7 @@ export class OptionsScene extends Phaser.Scene{
         plane1Img.on('pointerup', () => {
             this.text.setText('Red  eagle  will  fight  for  your  life  from  now  on!');
 
-            CST.STATE.PLANE = plane1Img.texture.key;
+            SETTINGS.STATE.PLANE = plane1Img.texture.key;
         });
 
         const back2 = this.add.rectangle(
@@ -178,7 +179,7 @@ export class OptionsScene extends Phaser.Scene{
         plane2Img.on('pointerup', () => {
             this.text.setText('The  best  of  the  beast  -  King\'s  aviation  is  yours!');
 
-            CST.STATE.PLANE = plane2Img.texture.key;
+            SETTINGS.STATE.PLANE = plane2Img.texture.key;
         });
 
         const back3 = this.add.rectangle(
@@ -203,7 +204,7 @@ export class OptionsScene extends Phaser.Scene{
         plane3Img.on('pointerup', () => {
             this.text.setText('The  mercenaries  lent  you  a  plane,  but  not  for  long');
 
-            CST.STATE.PLANE = plane3Img.texture.key;
+            SETTINGS.STATE.PLANE = plane3Img.texture.key;
         });
 
         const back4 = this.add.rectangle(
@@ -228,7 +229,7 @@ export class OptionsScene extends Phaser.Scene{
         plane4Img.on('pointerup', () => {
             this.text.setText('The  child  of  the  powerful  Uranus  is  ready!');
 
-            CST.STATE.PLANE = plane4Img.texture.key;
+            SETTINGS.STATE.PLANE = plane4Img.texture.key;
         });
 
         const back5 = this.add.rectangle(
@@ -253,7 +254,7 @@ export class OptionsScene extends Phaser.Scene{
         plane5Img.on('pointerup', () => {
             this.text.setText('Surf-green  serpent  takes  off  from  the  runway!');
 
-            CST.STATE.PLANE = plane5Img.texture.key;
+            SETTINGS.STATE.PLANE = plane5Img.texture.key;
         });
 
         const BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST.IMAGES.BUTTON)

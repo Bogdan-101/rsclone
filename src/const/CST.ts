@@ -1,4 +1,4 @@
-export let CST = {
+export const CST = {
     SCENES: {
         LOAD: "LOAD",
         MENU: "MENU",
@@ -25,7 +25,9 @@ export let CST = {
         HPBACK: "HPBack.png",
         ARROWBUTTON: "ArrowButton.png",
         SCORE: "Score.png",
-        PAUSEIMG: "NightPauseImage.png"
+        PAUSEIMG: "NightPauseImage.png",
+        CREDITSLINE: "CreditsLine.png",
+        NOWPLAYING: "NowPlaying.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -49,10 +51,5 @@ export let CST = {
         ENEMYATLAS: "EnemyPlaneAtlas.png",
         LEVELBUTTON: "LevelButton.png",
         HEART: "HealthHearts.png"
-    },
-    STATE: {
-        MUSIC: "0.5",
-        EFFECTS: "0.5",
-        PLANE: "PlaneSprites.png"
     }
 }

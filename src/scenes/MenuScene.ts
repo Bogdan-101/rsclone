@@ -1,4 +1,5 @@
 import { CST } from '../const/CST';
+import { SETTINGS } from '../const/SETTINGS';
 
 export class MenuScene extends Phaser.Scene{
     private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -97,20 +98,20 @@ export class MenuScene extends Phaser.Scene{
         }
         this.anims.create({
             key: 'left',
-            frames: [ { key: CST.STATE.PLANE, frame: 0 } ],
+            frames: [ { key: SETTINGS.STATE.PLANE, frame: 0 } ],
             frameRate: 24,
             repeat: -1
         });
 
         this.anims.create({
             key: 'turn',
-            frames: [ { key: CST.STATE.PLANE, frame: 1 } ],
+            frames: [ { key: SETTINGS.STATE.PLANE, frame: 1 } ],
             frameRate: 24
         });
 
         this.anims.create({
             key: 'right',
-            frames: [ { key: CST.STATE.PLANE, frame: 2 } ],
+            frames: [ { key: SETTINGS.STATE.PLANE, frame: 2 } ],
             frameRate: 24,
             repeat: -1
         });
@@ -121,7 +122,7 @@ export class MenuScene extends Phaser.Scene{
         this.sound.volume = 1;
         this.sound.play(CST.AUDIO.MAINIMENU, {
             loop: true,
-            volume: +CST.STATE.MUSIC
+            volume: +SETTINGS.STATE.MUSIC
         });
 
         this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST.SPRITE.PLANE)

@@ -24,8 +24,8 @@ export class CreditScene extends Phaser.Scene{
             }
         });
 
-        const line = this.add.rectangle(this.game.renderer.width / 10, this.game.renderer.height * 5 / 4 + 25, 600, 25, 0xffffff)
-            .setOrigin(0);
+        const line = this.add.image(this.game.renderer.width / 10 - 50, this.game.renderer.height * 5 / 4 + 25, CST.IMAGES.CREDITSLINE)
+            .setOrigin(0).setScale(1.25);
 
         const textEng = this.make.text({
             x: this.game.renderer.width / 10,

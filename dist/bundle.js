@@ -38,7 +38,9 @@ exports.CST = {
         HPBACK: "HPBack.png",
         ARROWBUTTON: "ArrowButton.png",
         SCORE: "Score.png",
-        PAUSEIMG: "NightPauseImage.png"
+        PAUSEIMG: "NightPauseImage.png",
+        CREDITSLINE: "CreditsLine.png",
+        NOWPLAYING: "NowPlaying.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -62,11 +64,27 @@ exports.CST = {
         ENEMYATLAS: "EnemyPlaneAtlas.png",
         LEVELBUTTON: "LevelButton.png",
         HEART: "HealthHearts.png"
-    },
+    }
+};
+
+
+/***/ }),
+
+/***/ "./src/const/SETTINGS.ts":
+/*!*******************************!*\
+  !*** ./src/const/SETTINGS.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SETTINGS = void 0;
+exports.SETTINGS = {
     STATE: {
         MUSIC: "0.5",
         EFFECTS: "0.5",
-        PLANE: "PlaneSprites.png"
+        PLANE: "PlaneSprites.png",
+        DIFFICULTY: "2"
     }
 };
 
@@ -134,6 +152,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var Enemy = /** @class */ (function (_super) {
     __extends(Enemy, _super);
     function Enemy(scene, x, y, texture) {
@@ -233,7 +252,7 @@ var Enemy = /** @class */ (function (_super) {
                     rocket.destroy();
             });
             if (!this.scene.sound.get(CST_1.CST.AUDIO.ENEMYBLASTER))
-                this.scene.sound.play(CST_1.CST.AUDIO.ENEMYBLASTER, { volume: +CST_1.CST.STATE.EFFECTS * 0.09 });
+                this.scene.sound.play(CST_1.CST.AUDIO.ENEMYBLASTER, { volume: +SETTINGS_1.SETTINGS.STATE.EFFECTS * 0.09 });
         }
         //@ts-ignore
         if (!this.isMoving && this.scene.isPaused !== true) {
@@ -270,6 +289,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var Hero = /** @class */ (function (_super) {
     __extends(Hero, _super);
     function Hero(scene, x, y, texture) {
@@ -371,7 +391,7 @@ var Hero = /** @class */ (function (_super) {
                     },
                     delay: 3000
                 });
-                this.scene.sound.add(CST_1.CST.AUDIO.BLASTER, { volume: +CST_1.CST.STATE.EFFECTS * 0.5 }).play();
+                this.scene.sound.add(CST_1.CST.AUDIO.BLASTER, { volume: +SETTINGS_1.SETTINGS.STATE.EFFECTS * 0.5 }).play();
             }
         }
     };
@@ -583,8 +603,8 @@ var CreditScene = /** @class */ (function (_super) {
                 wordWrap: { width: 700 }
             }
         });
-        var line = this.add.rectangle(this.game.renderer.width / 10, this.game.renderer.height * 5 / 4 + 25, 600, 25, 0xffffff)
-            .setOrigin(0);
+        var line = this.add.image(this.game.renderer.width / 10 - 50, this.game.renderer.height * 5 / 4 + 25, CST_1.CST.IMAGES.CREDITSLINE)
+            .setOrigin(0).setScale(1.25);
         var textEng = this.make.text({
             x: this.game.renderer.width / 10,
             y: this.game.renderer.height * 1.4,
@@ -729,6 +749,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var Enemy_1 = __importDefault(__webpack_require__(/*! ../planes/Enemy */ "./src/planes/Enemy.ts"));
 var HeroPlane_1 = __importDefault(__webpack_require__(/*! ../planes/HeroPlane */ "./src/planes/HeroPlane.ts"));
 var GameScene = /** @class */ (function (_super) {
@@ -901,7 +922,7 @@ var GameScene = /** @class */ (function (_super) {
         var _this = this;
         this.scene.launch(CST_1.CST.SCENES.MUSICSCENE);
         this.scene.launch(CST_1.CST.SCENES.HUDSCENE);
-        this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, CST_1.CST.STATE.PLANE);
+        this.player = new HeroPlane_1.default(this, this.game.renderer.width / 2, this.game.renderer.height - 200, SETTINGS_1.SETTINGS.STATE.PLANE);
         this.enemies = this.physics.add.group({
             classType: Enemy_1.default, runChildUpdate: true
         });
@@ -1370,6 +1391,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MenuScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var MenuScene = /** @class */ (function (_super) {
     __extends(MenuScene, _super);
     function MenuScene() {
@@ -1446,18 +1468,18 @@ var MenuScene = /** @class */ (function (_super) {
         }
         this.anims.create({
             key: 'left',
-            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 0 }],
+            frames: [{ key: SETTINGS_1.SETTINGS.STATE.PLANE, frame: 0 }],
             frameRate: 24,
             repeat: -1
         });
         this.anims.create({
             key: 'turn',
-            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 1 }],
+            frames: [{ key: SETTINGS_1.SETTINGS.STATE.PLANE, frame: 1 }],
             frameRate: 24
         });
         this.anims.create({
             key: 'right',
-            frames: [{ key: CST_1.CST.STATE.PLANE, frame: 2 }],
+            frames: [{ key: SETTINGS_1.SETTINGS.STATE.PLANE, frame: 2 }],
             frameRate: 24,
             repeat: -1
         });
@@ -1467,7 +1489,7 @@ var MenuScene = /** @class */ (function (_super) {
         this.sound.volume = 1;
         this.sound.play(CST_1.CST.AUDIO.MAINIMENU, {
             loop: true,
-            volume: +CST_1.CST.STATE.MUSIC
+            volume: +SETTINGS_1.SETTINGS.STATE.MUSIC
         });
         this.player = this.physics.add.sprite(this.game.renderer.width / 4, this.game.renderer.height + 200, CST_1.CST.SPRITE.PLANE)
             .setScale(1.5).setDepth(10);
@@ -1676,6 +1698,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MusicScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var MusicScene = /** @class */ (function (_super) {
     __extends(MusicScene, _super);
     function MusicScene() {
@@ -1694,59 +1717,68 @@ var MusicScene = /** @class */ (function (_super) {
     };
     MusicScene.prototype.create = function () {
         var _this = this;
-        if (+CST_1.CST.STATE.MUSIC >= 0.1) {
+        if (+SETTINGS_1.SETTINGS.STATE.MUSIC >= 0.1) {
             var rand = Phaser.Math.Between(1, 6);
             switch (rand) {
                 case 1: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 2: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 3: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 4: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 5: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 6: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 default: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
             }
+            var NowPlaying_1 = this.add.image(-200, 10, CST_1.CST.IMAGES.NOWPLAYING)
+                .setOrigin(0);
             var musicText_1 = this.make.text({
                 x: -200,
-                y: 10,
+                y: 30,
                 text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
                 style: {
-                    fontFamily: 'arcadeFont',
+                    fontFamily: 'Courier',
                     fontSize: '16px',
-                    color: '#000000'
+                    color: '#ffffff',
+                    wordWrap: { width: 150 }
                 }
             });
             this.tweens.add({
                 targets: musicText_1,
-                x: 10,
+                x: 15,
                 alpha: { from: 0, to: 1 },
+                duration: 1000,
+                ease: 'Cubic.easeInOut'
+            });
+            this.tweens.add({
+                targets: NowPlaying_1,
+                x: 0,
                 duration: 1000,
                 ease: 'Cubic.easeInOut'
             });
@@ -1755,8 +1787,14 @@ var MusicScene = /** @class */ (function (_super) {
                 callback: function () {
                     _this.tweens.add({
                         targets: musicText_1,
-                        x: -200,
+                        x: -265,
                         alpha: { from: 1, to: 0 },
+                        duration: 1000,
+                        ease: 'Cubic.easeInOut'
+                    });
+                    _this.tweens.add({
+                        targets: NowPlaying_1,
+                        x: -250,
                         duration: 1000,
                         ease: 'Cubic.easeInOut'
                     });
@@ -1764,6 +1802,7 @@ var MusicScene = /** @class */ (function (_super) {
                         delay: 1000,
                         callback: function () {
                             musicText_1.destroy();
+                            NowPlaying_1.destroy();
                         },
                         loop: false
                     });
@@ -1774,61 +1813,69 @@ var MusicScene = /** @class */ (function (_super) {
     };
     MusicScene.prototype.update = function () {
         var _this = this;
-        if (+CST_1.CST.STATE.MUSIC !== 0 && +CST_1.CST.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
+        if (+SETTINGS_1.SETTINGS.STATE.MUSIC !== 0 && +SETTINGS_1.SETTINGS.STATE.EFFECTS !== 0 && !this.music.isPlaying && !this.scene.isPaused) {
             var rand = Phaser.Math.Between(1, 5);
             while (rand === this.musicIndex)
                 rand = Phaser.Math.Between(1, 5);
             switch (rand) {
                 case 1: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 2: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC2, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 3: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC3, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 4: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC4, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 5: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC5, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 case 6: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC6, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
                 default: {
-                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +CST_1.CST.STATE.MUSIC });
+                    this.music = this.sound.add(CST_1.CST.AUDIO.MUSIC1, { volume: +SETTINGS_1.SETTINGS.STATE.MUSIC });
                     this.music.play();
                     break;
                 }
             }
+            var NowPlaying_2 = this.add.image(-200, 10, CST_1.CST.IMAGES.NOWPLAYING)
+                .setOrigin(0);
             var musicText_2 = this.make.text({
                 x: -200,
                 y: 10,
                 text: "Now playing:\n" + this.music.key.slice(0, this.music.key.length - 4),
                 style: {
-                    fontFamily: 'arcadeFont',
+                    fontFamily: 'Courier',
                     fontSize: '16px',
-                    color: '#000000'
+                    color: '#ffffff'
                 }
             });
             this.tweens.add({
                 targets: musicText_2,
-                x: 10,
+                x: 15,
                 alpha: { from: 0, to: 1 },
+                duration: 1000,
+                ease: 'Cubic.easeInOut'
+            });
+            this.tweens.add({
+                targets: NowPlaying_2,
+                x: 0,
                 duration: 1000,
                 ease: 'Cubic.easeInOut'
             });
@@ -1837,8 +1884,14 @@ var MusicScene = /** @class */ (function (_super) {
                 callback: function () {
                     _this.tweens.add({
                         targets: musicText_2,
-                        x: -200,
+                        x: -265,
                         alpha: { from: 1, to: 0 },
+                        duration: 1000,
+                        ease: 'Cubic.easeInOut'
+                    });
+                    _this.tweens.add({
+                        targets: NowPlaying_2,
+                        x: -250,
                         duration: 1000,
                         ease: 'Cubic.easeInOut'
                     });
@@ -1846,6 +1899,7 @@ var MusicScene = /** @class */ (function (_super) {
                         delay: 1000,
                         callback: function () {
                             musicText_2.destroy();
+                            NowPlaying_2.destroy();
                         },
                         loop: false
                     });
@@ -1884,6 +1938,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OptionsScene = void 0;
 var CST_1 = __webpack_require__(/*! ../const/CST */ "./src/const/CST.ts");
+var SETTINGS_1 = __webpack_require__(/*! ../const/SETTINGS */ "./src/const/SETTINGS.ts");
 var OptionsScene = /** @class */ (function (_super) {
     __extends(OptionsScene, _super);
     function OptionsScene() {
@@ -1944,8 +1999,8 @@ var OptionsScene = /** @class */ (function (_super) {
         });
     };
     OptionsScene.prototype.update = function () {
-        this.musicText.setText(CST_1.CST.STATE.MUSIC.slice(0, 3));
-        this.effectsText.setText(CST_1.CST.STATE.EFFECTS.slice(0, 3));
+        this.musicText.setText(SETTINGS_1.SETTINGS.STATE.MUSIC.slice(0, 3));
+        this.effectsText.setText(SETTINGS_1.SETTINGS.STATE.EFFECTS.slice(0, 3));
     };
     OptionsScene.prototype.create = function () {
         var _this = this;
@@ -1955,17 +2010,17 @@ var OptionsScene = /** @class */ (function (_super) {
             .setScale(0.25).setRotation(3.1415926538);
         upMusic.setInteractive();
         upMusic.on('pointerup', function () {
-            if (+CST_1.CST.STATE.MUSIC + 0.1 <= 0.9)
-                CST_1.CST.STATE.MUSIC = (+CST_1.CST.STATE.MUSIC + 0.1).toString();
+            if (+SETTINGS_1.SETTINGS.STATE.MUSIC + 0.1 <= 0.9)
+                SETTINGS_1.SETTINGS.STATE.MUSIC = (+SETTINGS_1.SETTINGS.STATE.MUSIC + 0.1).toString();
             else
-                CST_1.CST.STATE.MUSIC = '1';
+                SETTINGS_1.SETTINGS.STATE.MUSIC = '1';
         });
         downMusic.setInteractive();
         downMusic.on('pointerup', function () {
-            if (+CST_1.CST.STATE.MUSIC - 0.1 >= 0.1)
-                CST_1.CST.STATE.MUSIC = (+CST_1.CST.STATE.MUSIC - 0.1).toString();
+            if (+SETTINGS_1.SETTINGS.STATE.MUSIC - 0.1 >= 0.1)
+                SETTINGS_1.SETTINGS.STATE.MUSIC = (+SETTINGS_1.SETTINGS.STATE.MUSIC - 0.1).toString();
             else
-                CST_1.CST.STATE.MUSIC = '0';
+                SETTINGS_1.SETTINGS.STATE.MUSIC = '0';
         });
         var upEffects = this.add.image(190, this.game.renderer.height / 2 - 150, CST_1.CST.IMAGES.ARROWBUTTON)
             .setScale(0.25).setOrigin(0);
@@ -1973,17 +2028,17 @@ var OptionsScene = /** @class */ (function (_super) {
             .setScale(0.25).setRotation(3.1415926538);
         upEffects.setInteractive();
         upEffects.on('pointerup', function () {
-            if (+CST_1.CST.STATE.EFFECTS + 0.1 <= 0.9)
-                CST_1.CST.STATE.EFFECTS = (+CST_1.CST.STATE.EFFECTS + 0.1).toString();
+            if (+SETTINGS_1.SETTINGS.STATE.EFFECTS + 0.1 <= 0.9)
+                SETTINGS_1.SETTINGS.STATE.EFFECTS = (+SETTINGS_1.SETTINGS.STATE.EFFECTS + 0.1).toString();
             else
-                CST_1.CST.STATE.EFFECTS = '1';
+                SETTINGS_1.SETTINGS.STATE.EFFECTS = '1';
         });
         downEffects.setInteractive();
         downEffects.on('pointerup', function () {
-            if (+CST_1.CST.STATE.EFFECTS - 0.1 >= 0.1)
-                CST_1.CST.STATE.EFFECTS = (+CST_1.CST.STATE.EFFECTS - 0.1).toString();
+            if (+SETTINGS_1.SETTINGS.STATE.EFFECTS - 0.1 >= 0.1)
+                SETTINGS_1.SETTINGS.STATE.EFFECTS = (+SETTINGS_1.SETTINGS.STATE.EFFECTS - 0.1).toString();
             else
-                CST_1.CST.STATE.EFFECTS = '0';
+                SETTINGS_1.SETTINGS.STATE.EFFECTS = '0';
         });
         var plane1Img = this.physics.add.sprite(50, this.game.renderer.height * 3 / 5, CST_1.CST.SPRITE.PLANE)
             .setFrame(1).setOrigin(0).setScale(2).setDepth(2);
@@ -2006,7 +2061,7 @@ var OptionsScene = /** @class */ (function (_super) {
         });
         plane1Img.on('pointerup', function () {
             _this.text.setText('Red  eagle  will  fight  for  your  life  from  now  on!');
-            CST_1.CST.STATE.PLANE = plane1Img.texture.key;
+            SETTINGS_1.SETTINGS.STATE.PLANE = plane1Img.texture.key;
         });
         var back2 = this.add.rectangle(this.game.renderer.width / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -2019,7 +2074,7 @@ var OptionsScene = /** @class */ (function (_super) {
         });
         plane2Img.on('pointerup', function () {
             _this.text.setText('The  best  of  the  beast  -  King\'s  aviation  is  yours!');
-            CST_1.CST.STATE.PLANE = plane2Img.texture.key;
+            SETTINGS_1.SETTINGS.STATE.PLANE = plane2Img.texture.key;
         });
         var back3 = this.add.rectangle(this.game.renderer.width * 2 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -2032,7 +2087,7 @@ var OptionsScene = /** @class */ (function (_super) {
         });
         plane3Img.on('pointerup', function () {
             _this.text.setText('The  mercenaries  lent  you  a  plane,  but  not  for  long');
-            CST_1.CST.STATE.PLANE = plane3Img.texture.key;
+            SETTINGS_1.SETTINGS.STATE.PLANE = plane3Img.texture.key;
         });
         var back4 = this.add.rectangle(this.game.renderer.width * 3 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -2045,7 +2100,7 @@ var OptionsScene = /** @class */ (function (_super) {
         });
         plane4Img.on('pointerup', function () {
             _this.text.setText('The  child  of  the  powerful  Uranus  is  ready!');
-            CST_1.CST.STATE.PLANE = plane4Img.texture.key;
+            SETTINGS_1.SETTINGS.STATE.PLANE = plane4Img.texture.key;
         });
         var back5 = this.add.rectangle(this.game.renderer.width * 4 / 5 + 40, this.game.renderer.height * 3 / 5 - 10, 78, 103, 0xffffff)
             .setVisible(false).setOrigin(0).setDepth(1).setAlpha(0.4);
@@ -2058,7 +2113,7 @@ var OptionsScene = /** @class */ (function (_super) {
         });
         plane5Img.on('pointerup', function () {
             _this.text.setText('Surf-green  serpent  takes  off  from  the  runway!');
-            CST_1.CST.STATE.PLANE = plane5Img.texture.key;
+            SETTINGS_1.SETTINGS.STATE.PLANE = plane5Img.texture.key;
         });
         var BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height - 50, CST_1.CST.IMAGES.BUTTON)
             .setScale(3);
