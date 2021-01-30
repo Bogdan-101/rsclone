@@ -27,7 +27,8 @@ export const CST = {
         SCORE: "Score.png",
         PAUSEIMG: "NightPauseImage.png",
         CREDITSLINE: "CreditsLine.png",
-        NOWPLAYING: "NowPlaying.png"
+        NOWPLAYING: "NowPlaying.png",
+        HEART: "Heart.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",

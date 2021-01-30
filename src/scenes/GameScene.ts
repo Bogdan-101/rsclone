@@ -136,6 +136,7 @@ export class GameScene extends Phaser.Scene{
         if (s)
             s.destroy();
         if (this.player.Hit() !== 0) {
+            this.registry.set('health', this.player.health);
             return;
         }
         this.sound.stopAll();
@@ -173,6 +174,12 @@ export class GameScene extends Phaser.Scene{
             });
         }
         this.background.tilePositionY = 0;
+    }
+
+    Heal() {
+        if (this.player.health < 6)
+            this.player.health++;
+        this.registry.set('health', this.player.health);
     }
 
     RestartGame() {

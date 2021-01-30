@@ -71,6 +71,11 @@ export default class Hero extends Phaser.GameObjects.Sprite
         return this.health;
     }
 
+    Heal() {
+        if (this.health < 6)
+            this.health++;
+    }
+
     update(time: number){
             if (this.health !== 0) {
                 if (this.cursors.left.isDown)

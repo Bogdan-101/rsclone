@@ -283,7 +283,6 @@ export class LoadScene extends Phaser.Scene{
     }
 
     create(){
-        this.scene.start(CST.SCENES.MENU);
         this.time.addEvent({
             delay: 9500,
             callback: () => {

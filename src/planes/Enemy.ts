@@ -8,6 +8,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
 	private target?: Phaser.GameObjects.Components.Transform;
  private lastFired!: number;
  private rockets: Phaser.Physics.Arcade.Group;
+ private hearts: Phaser.Physics.Arcade.Group;
  private isMoving: boolean;
  private isAlive: boolean;
 	constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
@@ -15,6 +16,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         super(scene, x, y, texture);
         this.anims.play('enemyIdle');
         this.rockets = scene.physics.add.group();
+        this.hearts = scene.physics.add.group();
         this.setDepth(-2);
         this.isMoving = false;
         this.isAlive = true;
@@ -26,6 +28,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
         // @ts-ignore
         this.scene.physics.add.collider(player, this, () => scene.Hit(), null, this);
 
+        this.scene.physics.add.collider(player, this.hearts, (f, s) => {
+            //@ts-ignore
+            scene.Heal();
+            s.destroy();
+            //@ts-ignore
+        }, null, this);
         this.anims.create({
             key: 'die',
             frames: this.anims.generateFrameNumbers(CST.SPRITE.ENEMY, { start: 3, end: 4 }),
@@ -87,6 +95,11 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
                         loop: false
                     });
         this.destroy();
+
+        if (Phaser.Math.Between(1, 15) === 10) {
+            const rocket = this.hearts.create(this.x, this.y + 10, CST.IMAGES.HEART);
+            rocket.setVelocityY(100);
+        }
     }
 
 	setTarget(target: Phaser.GameObjects.Components.Transform): void

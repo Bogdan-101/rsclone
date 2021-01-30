@@ -40,7 +40,8 @@ exports.CST = {
         SCORE: "Score.png",
         PAUSEIMG: "NightPauseImage.png",
         CREDITSLINE: "CreditsLine.png",
-        NOWPLAYING: "NowPlaying.png"
+        NOWPLAYING: "NowPlaying.png",
+        HEART: "Heart.png"
     },
     AUDIO: {
         BLASTER: "blaster.mp3",
@@ -159,6 +160,7 @@ var Enemy = /** @class */ (function (_super) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.anims.play('enemyIdle');
         _this.rockets = scene.physics.add.group();
+        _this.hearts = scene.physics.add.group();
         _this.setDepth(-2);
         _this.isMoving = false;
         _this.isAlive = true;
@@ -169,6 +171,12 @@ var Enemy = /** @class */ (function (_super) {
         this.scene.physics.add.collider(player, this.rockets, function (f, s) { return scene.Hit(s); }, null, this);
         // @ts-ignore
         this.scene.physics.add.collider(player, this, function () { return scene.Hit(); }, null, this);
+        this.scene.physics.add.collider(player, this.hearts, function (f, s) {
+            //@ts-ignore
+            scene.Heal();
+            s.destroy();
+            //@ts-ignore
+        }, null, this);
         this.anims.create({
             key: 'die',
             frames: this.anims.generateFrameNumbers(CST_1.CST.SPRITE.ENEMY, { start: 3, end: 4 }),
@@ -225,6 +233,10 @@ var Enemy = /** @class */ (function (_super) {
             loop: false
         });
         this.destroy();
+        if (Phaser.Math.Between(1, 15) === 10) {
+            var rocket = this.hearts.create(this.x, this.y + 10, CST_1.CST.IMAGES.HEART);
+            rocket.setVelocityY(100);
+        }
     };
     Enemy.prototype.setTarget = function (target) {
         this.target = target;
@@ -344,6 +356,10 @@ var Hero = /** @class */ (function (_super) {
             });
         }
         return this.health;
+    };
+    Hero.prototype.Heal = function () {
+        if (this.health < 6)
+            this.health++;
     };
     Hero.prototype.update = function (time) {
         if (this.health !== 0) {
@@ -869,6 +885,7 @@ var GameScene = /** @class */ (function (_super) {
         if (s)
             s.destroy();
         if (this.player.Hit() !== 0) {
+            this.registry.set('health', this.player.health);
             return;
         }
         this.sound.stopAll();
@@ -900,6 +917,11 @@ var GameScene = /** @class */ (function (_super) {
             });
         }
         this.background.tilePositionY = 0;
+    };
+    GameScene.prototype.Heal = function () {
+        if (this.player.health < 6)
+            this.player.health++;
+        this.registry.set('health', this.player.health);
     };
     GameScene.prototype.RestartGame = function () {
         this.sound.stopAll();
