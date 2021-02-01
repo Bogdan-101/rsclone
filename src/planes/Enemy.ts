@@ -96,7 +96,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite implements IEnemy
                     });
         this.destroy();
 
-        if (Phaser.Math.Between(1, 15) === 10) {
+        if (Phaser.Math.Between(1, 10 + +SETTINGS.STATE.DIFFICULTY * 5) === 10) {
             const rocket = this.hearts.create(this.x, this.y + 10, CST.IMAGES.HEART);
             rocket.setVelocityY(100);
         }

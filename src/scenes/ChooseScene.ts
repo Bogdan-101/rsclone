@@ -48,7 +48,7 @@ export class ChooseScene extends Phaser.Scene{
             this.time.addEvent({
                 delay: 100,
                 callback: () => {
-                    this.scene.start(CST.SCENES.GAME);
+                    this.scene.start(CST.SCENES.GAME, {map: CST.IMAGES.STAGE, scale: 3.125});
                 },
                 loop: false
             });
@@ -77,6 +77,16 @@ export class ChooseScene extends Phaser.Scene{
             level2.anims.play('ButtonSteady');
         });
 
+        level2.on('pointerup', () => {
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    this.scene.start(CST.SCENES.GAME, {map: CST.IMAGES.STAGE2, scale: 3.125});
+                },
+                loop: false
+            });
+        });
+
         this.make.text({
             x: this.game.renderer.width / 3 + 78,
             y: this.game.renderer.height / 2 + 12,
@@ -98,6 +108,16 @@ export class ChooseScene extends Phaser.Scene{
 
         level3.on('pointerout', () => {
             level3.anims.play('ButtonSteady');
+        });
+
+        level3.on('pointerup', () => {
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    this.scene.start(CST.SCENES.GAME, {map: CST.IMAGES.STAGE3, scale: 1.25});
+                },
+                loop: false
+            });
         });
 
         this.make.text({

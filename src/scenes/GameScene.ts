@@ -100,8 +100,11 @@ export class GameScene extends Phaser.Scene{
 
     }
 
-    init() {
-        console.log('init');
+    init(data: object) {
+        //@ts-ignore
+        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, data.map)
+        //@ts-ignore
+            .setDepth(-3).setOrigin(0).setScale(data.scale);
     }
 
     update(time: number){
@@ -229,9 +232,6 @@ export class GameScene extends Phaser.Scene{
 			const enemy = child as unknown as IEnemy;
 			enemy.setTarget(this.player.player!)
 		})
-
-        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST.IMAGES.STAGE)
-            .setDepth(-3).setOrigin(0).setScale(3.125);
 
         this.input.keyboard.on('keydown-ESC', () => {
             if (!this.scene.isActive(CST.SCENES.PAUSESCENE)) {

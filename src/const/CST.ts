@@ -17,6 +17,8 @@ export const CST = {
         BIPLANE: "Biplane.png",
         BUTTON: "Button.png",
         STAGE: "stage.png",
+        STAGE2: "stage2.png",
+        STAGE3: "stage3.png",
         BULLET: "Bullet.png",
         ENEMYBULLET: "EnemyBullet.png",
         GAMEOVER: "game_over.png",

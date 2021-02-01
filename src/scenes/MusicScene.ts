@@ -178,7 +178,8 @@ export class MusicScene extends Phaser.Scene{
                 style: {
                     fontFamily: 'Courier',
                     fontSize: '16px',
-                    color: '#ffffff'
+                    color: '#ffffff',
+                    wordWrap: { width: 150 }
                 }
             });
 

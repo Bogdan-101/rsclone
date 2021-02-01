@@ -30,6 +30,8 @@ exports.CST = {
         BIPLANE: "Biplane.png",
         BUTTON: "Button.png",
         STAGE: "stage.png",
+        STAGE2: "stage2.png",
+        STAGE3: "stage3.png",
         BULLET: "Bullet.png",
         ENEMYBULLET: "EnemyBullet.png",
         GAMEOVER: "game_over.png",
@@ -233,7 +235,7 @@ var Enemy = /** @class */ (function (_super) {
             loop: false
         });
         this.destroy();
-        if (Phaser.Math.Between(1, 15) === 10) {
+        if (Phaser.Math.Between(1, 10 + +SETTINGS_1.SETTINGS.STATE.DIFFICULTY * 5) === 10) {
             var rocket = this.hearts.create(this.x, this.y + 10, CST_1.CST.IMAGES.HEART);
             rocket.setVelocityY(100);
         }
@@ -485,7 +487,7 @@ var ChooseScene = /** @class */ (function (_super) {
             _this.time.addEvent({
                 delay: 100,
                 callback: function () {
-                    _this.scene.start(CST_1.CST.SCENES.GAME);
+                    _this.scene.start(CST_1.CST.SCENES.GAME, { map: CST_1.CST.IMAGES.STAGE, scale: 3.125 });
                 },
                 loop: false
             });
@@ -509,6 +511,15 @@ var ChooseScene = /** @class */ (function (_super) {
         level2.on('pointerout', function () {
             level2.anims.play('ButtonSteady');
         });
+        level2.on('pointerup', function () {
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    _this.scene.start(CST_1.CST.SCENES.GAME, { map: CST_1.CST.IMAGES.STAGE2, scale: 3.125 });
+                },
+                loop: false
+            });
+        });
         this.make.text({
             x: this.game.renderer.width / 3 + 78,
             y: this.game.renderer.height / 2 + 12,
@@ -527,6 +538,15 @@ var ChooseScene = /** @class */ (function (_super) {
         });
         level3.on('pointerout', function () {
             level3.anims.play('ButtonSteady');
+        });
+        level3.on('pointerup', function () {
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    _this.scene.start(CST_1.CST.SCENES.GAME, { map: CST_1.CST.IMAGES.STAGE3, scale: 1.25 });
+                },
+                loop: false
+            });
         });
         this.make.text({
             x: this.game.renderer.width / 3 + 75,
@@ -850,8 +870,11 @@ var GameScene = /** @class */ (function (_super) {
             ease: 'Power1'
         });
     };
-    GameScene.prototype.init = function () {
-        console.log('init');
+    GameScene.prototype.init = function (data) {
+        //@ts-ignore
+        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, data.map)
+            //@ts-ignore
+            .setDepth(-3).setOrigin(0).setScale(data.scale);
     };
     GameScene.prototype.update = function (time) {
         var _this = this;
@@ -971,8 +994,6 @@ var GameScene = /** @class */ (function (_super) {
             var enemy = child;
             enemy.setTarget(_this.player.player);
         });
-        this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, CST_1.CST.IMAGES.STAGE)
-            .setDepth(-3).setOrigin(0).setScale(3.125);
         this.input.keyboard.on('keydown-ESC', function () {
             if (!_this.scene.isActive(CST_1.CST.SCENES.PAUSESCENE)) {
                 _this.physics.pause();
@@ -1373,7 +1394,6 @@ var LoadScene = /** @class */ (function (_super) {
     };
     LoadScene.prototype.create = function () {
         var _this = this;
-        this.scene.start(CST_1.CST.SCENES.MENU);
         this.time.addEvent({
             delay: 9500,
             callback: function () {
@@ -1884,7 +1904,8 @@ var MusicScene = /** @class */ (function (_super) {
                 style: {
                     fontFamily: 'Courier',
                     fontSize: '16px',
-                    color: '#ffffff'
+                    color: '#ffffff',
+                    wordWrap: { width: 150 }
                 }
             });
             this.tweens.add({
