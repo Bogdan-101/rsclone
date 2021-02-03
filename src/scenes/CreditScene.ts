@@ -39,7 +39,37 @@ export class CreditScene extends Phaser.Scene{
             }
         });
 
-        [textRus, line, textEng].map((elem) => {
+        const BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height * 11 / 6 - 50, CST.IMAGES.BUTTON)
+        .setOrigin(0.5).setScale(3);
+        const BackText = this.make.text({
+            x: this.game.renderer.width / 2 - 20,
+            y: this.game.renderer.height * 11 / 6 - 57,
+            text: 'Back',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '20px',
+                color: '#000000'
+            }
+        });
+        BackImg.setInteractive();
+
+        BackImg.on('pointerup', () => {
+            BackImg.setScale(3.25);
+            BackText.setScale(1.08333);
+            BackText.setX(BackText.x + 5);
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    BackImg.setScale(3);
+                    BackText.setScale(1);
+                    BackText.setX(BackText.x - 5);
+                    this.scene.start(CST.SCENES.MENU);
+                },
+                loop: false
+            });
+        });
+
+        [textRus, line, textEng, BackImg, BackText].map((elem) => {
             this.tweens.add({
                 targets: elem,
                 y: elem.y - this.game.renderer.height * 5 / 6,

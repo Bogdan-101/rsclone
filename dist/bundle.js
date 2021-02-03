@@ -652,7 +652,35 @@ var CreditScene = /** @class */ (function (_super) {
                 wordWrap: { width: 700 }
             }
         });
-        [textRus, line, textEng].map(function (elem) {
+        var BackImg = this.add.image(this.game.renderer.width / 2, this.game.renderer.height * 11 / 6 - 50, CST_1.CST.IMAGES.BUTTON)
+            .setOrigin(0.5).setScale(3);
+        var BackText = this.make.text({
+            x: this.game.renderer.width / 2 - 20,
+            y: this.game.renderer.height * 11 / 6 - 57,
+            text: 'Back',
+            style: {
+                fontFamily: 'arcadeFont',
+                fontSize: '20px',
+                color: '#000000'
+            }
+        });
+        BackImg.setInteractive();
+        BackImg.on('pointerup', function () {
+            BackImg.setScale(3.25);
+            BackText.setScale(1.08333);
+            BackText.setX(BackText.x + 5);
+            _this.time.addEvent({
+                delay: 100,
+                callback: function () {
+                    BackImg.setScale(3);
+                    BackText.setScale(1);
+                    BackText.setX(BackText.x - 5);
+                    _this.scene.start(CST_1.CST.SCENES.MENU);
+                },
+                loop: false
+            });
+        });
+        [textRus, line, textEng, BackImg, BackText].map(function (elem) {
             _this.tweens.add({
                 targets: elem,
                 y: elem.y - _this.game.renderer.height * 5 / 6,
@@ -1237,17 +1265,6 @@ var LoadScene = /** @class */ (function (_super) {
             }
         }).setDepth(1);
         percentText.setOrigin(0.5, 0.5);
-        var assetText = this.make.text({
-            x: width / 2,
-            y: height / 2 + 50,
-            text: '',
-            style: {
-                fontFamily: 'arcadeFont',
-                fontSize: '18px',
-                color: '#ffffff'
-            }
-        });
-        assetText.setOrigin(0.5, 0.5);
         var loadingBox = this.add.graphics({
             fillStyle: {
                 color: 0x222222,
@@ -1259,15 +1276,11 @@ var LoadScene = /** @class */ (function (_super) {
             loadingBar.fillRect(_this.game.renderer.width / 2 - 150, _this.game.renderer.height / 2 - 20, 300 * percent, 30);
             percentText.setText((percent * 100).toString().slice(0, 3) + '%');
         });
-        this.load.on('fileprogress', function (file) {
-            assetText.setText('Loading asset: ' + file.key);
-        });
         this.load.on('complete', function () {
             loadingBar.destroy();
             loadingBox.destroy();
             loadingText.destroy();
             percentText.destroy();
-            assetText.destroy();
             _this.cameras.main.backgroundColor.setTo(21, 21, 21);
             var logoLine = _this.add.graphics({
                 fillStyle: {

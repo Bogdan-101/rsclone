@@ -100,18 +100,6 @@ export class LoadScene extends Phaser.Scene{
         }).setDepth(1);
         percentText.setOrigin(0.5, 0.5);
 
-        const assetText = this.make.text({
-            x: width / 2,
-            y: height / 2 + 50,
-            text: '',
-            style: {
-                fontFamily: 'arcadeFont',
-                fontSize: '18px',
-                color: '#ffffff'
-            }
-        });
-        assetText.setOrigin(0.5, 0.5);
-
         const loadingBox = this.add.graphics({
             fillStyle: {
                 color: 0x222222,
@@ -135,16 +123,11 @@ export class LoadScene extends Phaser.Scene{
             percentText.setText((percent * 100).toString().slice(0, 3) + '%');
         })
 
-        this.load.on('fileprogress', (file : Phaser.Loader.File) => {
-            assetText.setText('Loading asset: ' + file.key);
-        })
-
         this.load.on('complete', () => {
             loadingBar.destroy();
             loadingBox.destroy();
             loadingText.destroy();
             percentText.destroy();
-            assetText.destroy();
             this.cameras.main.backgroundColor.setTo(21, 21, 21);
 
             const logoLine = this.add.graphics({
