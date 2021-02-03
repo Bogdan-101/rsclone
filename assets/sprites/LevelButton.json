@@ -1,0 +1,62 @@
+{
+	"textures": [
+		{
+			"image": "LevelButton.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 239,
+				"h": 106
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "Button0.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 237,
+						"h": 52
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 237,
+						"h": 52
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 237,
+						"h": 52
+					}
+				},
+				{
+					"filename": "Button1.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 235,
+						"h": 50
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 235,
+						"h": 50
+					},
+					"frame": {
+						"x": 1,
+						"y": 55,
+						"w": 235,
+						"h": 50
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:bc347e8d1c04bde2d1e76caa3a4af146:b3dbd7f05e9c34cf36e9983c52c3b48a:89ae3d5505823f0a7a4728d8637d5793$"
+	}
+}

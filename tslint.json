@@ -1,0 +1,9 @@
+{
+    "extends": "tslint:latest",
+    "linterOptions": {
+        "exclude": [
+            "typings/phaser.d.ts",
+            "node_modules"
+        ]
+    }
+  }
